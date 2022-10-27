@@ -13,4 +13,5 @@ type UserRepo interface {
 
 type UserDetailRepo interface {
 	CreateUserDetail(user *model.UserDetail) error
+	UpdateUserDetail(user *model.UserDetail, userID string) error
 }

@@ -47,6 +47,14 @@ func SuccessCreated(message string) *ResponseSuccess {
 	}
 }
 
+func OperationSuccess(message string) *ResponseSuccess {
+	return &ResponseSuccess{
+		Status:      http.StatusOK,
+		Message:     message,
+		GeneralInfo: "Group-2",
+	}
+}
+
 func SuccessWithData(payload interface{}, message string) *ResponseWithDataSuccess {
 	return &ResponseWithDataSuccess{
 		Status:  http.StatusOK,

@@ -41,3 +41,21 @@ func (u *UserDetailService) CreateUserDetail(user *params.CreateUser, userID str
 	}
 	return nil
 }
+
+func (u *UserDetailService) UpdateUser(user *params.CreateUser, userID string) error {
+	cityData, err := u.rajaongkirAdaptor.GetCity(user.CityId, user.ProvinceId)
+	if err != nil {
+		fmt.Printf("[UpdateUser] : error when get data from RajaOngkir : %s", err)
+		return custom_error.ErrInternalServer
+	}
+	userModel := user.ParseToModel(userID)
+	userModel.Id = uuid.NewString()
+	userModel.UpdatedAt = time.Now()
+	userModel.Province = cityData.Rajaongkir.Results.Province
+	userModel.City = cityData.Rajaongkir.Results.CityName
+	err = u.repo.UpdateUserDetail(userModel, userID)
+	if err != nil {
+		return custom_error.ErrInternalServer
+	}
+	return nil
+}

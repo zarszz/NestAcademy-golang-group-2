@@ -196,6 +196,35 @@ func (u *UserController) GetByEmail(c *gin.Context) {
 	WriteJsonResponseGetSuccess(c, payload)
 }
 
+func (u *UserController) UpdateUserProfile(c *gin.Context) {
+	var req params.CreateUser
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		WriteInvalidRequestPayloadResponse(c, "UPDATE_USER_FAIL")
+		return
+	}
+
+	err = params.Validate(req)
+	if err != nil {
+		WriteInvalidRequestPayloadResponse(c, "UPDATE_USER_FAIL")
+		return
+	}
+
+	userID := c.GetString("USER_ID")
+	err = u.userDetailsvc.UpdateUser(&req, userID)
+	if err != nil {
+		info := view.AdditionalInfoError{
+			Message: "Oopss.. something wrong",
+		}
+		payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+		WriteErrorJsonResponse(c, payload)
+		return
+	}
+
+	payload := view.OperationSuccess("UPDATE_USER_SUCCESS")
+	WriteJsonResponseSuccess(c, payload)
+}
+
 func makeListViewUser(users *[]model.User) *[]params.GetUser {
 	var userList []params.GetUser
 	for _, user := range *users {
