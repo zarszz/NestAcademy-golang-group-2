@@ -28,12 +28,16 @@ func main() {
 	userSvc := service.NewServices(userRepo)
 	userHandler := controller.NewUserController(userSvc)
 
+	productRepo := gorm_postgres.NewProductRepoGormPostgres(db)
+	productSvc := service.NewProductServices(productRepo)
+	productHandler := controller.NewProductHandler(productSvc)
+
 	router := gin.Default()
 	router.Use(gin.Logger())
 
 	middleware := server.NewMiddleware(userSvc)
 
-	app := server.NewRouter(router, userHandler, middleware)
+	app := server.NewRouter(router, userHandler, productHandler, middleware)
 
-	app.Start(":4444")
+	app.Start(":" + config.Port)
 }

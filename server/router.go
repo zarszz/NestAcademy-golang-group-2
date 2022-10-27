@@ -9,13 +9,15 @@ import (
 type Router struct {
 	router     *gin.Engine
 	user       *controller.UserController
+	product    *controller.ProductHandler
 	middleware *Middleware
 }
 
-func NewRouter(router *gin.Engine, user *controller.UserController, middleware *Middleware) *Router {
+func NewRouter(router *gin.Engine, user *controller.UserController, product *controller.ProductHandler, middleware *Middleware) *Router {
 	return &Router{
 		router:     router,
 		user:       user,
+		product:    product,
 		middleware: middleware,
 	}
 }
@@ -26,6 +28,13 @@ func (r *Router) Start(port string) {
 	auth := r.router.Group("/auth")
 	auth.POST("/register", r.user.Register)
 	auth.POST("/login", r.user.Login)
+
+	product := r.router.Group("/product")
+	product.GET("", r.product.GetProducts)
+	product.POST("", r.product.CreateProduct)
+	product.GET("/id/:productId", r.product.FindProductByID)
+	product.PUT("/id/:productId", r.product.UpdateProduct)
+	product.DELETE("/id/:productId", r.product.DeleteProduct)
 
 	r.router.Run(port)
 }

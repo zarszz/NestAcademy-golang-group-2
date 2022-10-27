@@ -1,13 +1,14 @@
 package server
 
 import (
+	"log"
+	"strings"
+	"time"
+
 	"github.com/zarszz/NestAcademy-golang-group-2/helper"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/controller"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/service"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/view"
-	"log"
-	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
