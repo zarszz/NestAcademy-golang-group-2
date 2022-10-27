@@ -84,6 +84,17 @@ func (u *UserServices) FindByID(id string) (*model.User, error) {
 	return user, nil
 }
 
+func (u *UserServices) FindWithDetailByID(id string) (*model.User, error) {
+	user, err := u.repo.FindUserWithDetailByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, custom_error.ErrNotFound
+		}
+		return nil, custom_error.ErrInternalServer
+	}
+	return user, nil
+}
+
 func (u *UserServices) FindAllUsers(page int, limit int) (*[]model.User, *int64, error) {
 	user, count, err := u.repo.FindAllUsers(limit, page)
 	if err != nil {

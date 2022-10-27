@@ -143,6 +143,24 @@ func (u *UserController) CreateUser(c *gin.Context) {
 	WriteJsonResponseSuccess(c, view)
 }
 
+func (u *UserController) Profile(c *gin.Context) {
+	userID := c.GetString("USER_ID")
+	user, err := u.svc.FindWithDetailByID(userID)
+	if err != nil {
+		if err == custom_error.ErrInternalServer {
+			info := view.AdditionalInfoError{
+				Message: "Oopss.. something wrong",
+			}
+			payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+			WriteErrorJsonResponse(c, payload)
+			return
+		}
+	}
+	userParam := makeSingleViewUser(user)
+	view := view.SuccessWithData(userParam, "GET_USER_PROFILE_SUCCESS")
+	WriteJsonResponseGetSuccess(c, view)
+}
+
 func makeListViewUser(users *[]model.User) *[]params.GetUser {
 	var userList []params.GetUser
 	for _, user := range *users {
