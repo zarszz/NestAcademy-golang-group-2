@@ -10,12 +10,14 @@ import (
 )
 
 type UserController struct {
-	svc *service.UserServices
+	svc           *service.UserServices
+	userDetailsvc *service.UserDetailService
 }
 
-func NewUserController(svc *service.UserServices) *UserController {
+func NewUserController(svc *service.UserServices, userDetailsvc *service.UserDetailService) *UserController {
 	return &UserController{
-		svc: svc,
+		svc:           svc,
+		userDetailsvc: userDetailsvc,
 	}
 }
 
@@ -87,4 +89,28 @@ func (u *UserController) Login(c *gin.Context) {
 	payload := map[string]string{"token": *token}
 	view := view.SuccessWithData(payload, "LOGIN_SUCCESS")
 	WriteJsonResponseGetSuccess(c, view)
+}
+
+func (u *UserController) CreateUser(c *gin.Context) {
+	var user params.CreateUser
+	if err := c.ShouldBindJSON(&user); err != nil {
+		WriteInvalidRequestPayloadResponse(c, "CREATED_USER_FAIL")
+		return
+	}
+
+	userID := c.GetString("USER_ID")
+	err := u.userDetailsvc.CreateUserDetail(&user, userID)
+	if err != nil {
+		if err == custom_error.ErrInternalServer {
+			info := view.AdditionalInfoError{
+				Message: "Oopss.. something wrong",
+			}
+			payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+			WriteErrorJsonResponse(c, payload)
+			return
+		}
+	}
+
+	view := view.SuccessCreated("CREATED_USER_SUCCESS")
+	WriteJsonResponseSuccess(c, view)
 }

@@ -12,6 +12,15 @@ type Register struct {
 	Password string `validate:"required"`
 }
 
+type CreateUser struct {
+	FullName   string `json:"fullname"`
+	Gender     string `json:"gender"`
+	Contact    string `json:"contact"`
+	Street     string `json:"street"`
+	CityId     string `json:"city_id"`
+	ProvinceId string `json:"province_id"`
+}
+
 func Validate(u interface{}) error {
 	err := validator.New().Struct(u)
 	if err == nil {
@@ -38,5 +47,17 @@ func (u *Register) ParseToModel() *model.User {
 	return &model.User{
 		Email:    u.Email,
 		Password: u.Password,
+	}
+}
+
+func (u *CreateUser) ParseToModel(userID string) *model.UserDetail {
+	return &model.UserDetail{
+		FullName:   u.FullName,
+		Gender:     u.Gender,
+		Contact:    u.Contact,
+		Street:     u.Street,
+		CityId:     u.CityId,
+		ProvinceId: u.ProvinceId,
+		UserID:     userID,
 	}
 }

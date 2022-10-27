@@ -24,9 +24,12 @@ func main() {
 		panic(err)
 	}
 
+	userDetailRepo := gorm_postgres.NewUserDetailGormRepository(db)
+	userDetailSvc := service.NewUserDetailService(userDetailRepo)
+
 	userRepo := gorm_postgres.NewUserRepoGormPostgres(db)
 	userSvc := service.NewServices(userRepo)
-	userHandler := controller.NewUserController(userSvc)
+	userHandler := controller.NewUserController(userSvc, userDetailSvc)
 
 	router := gin.Default()
 	router.Use(gin.Logger())

@@ -27,5 +27,8 @@ func (r *Router) Start(port string) {
 	auth.POST("/register", r.user.Register)
 	auth.POST("/login", r.user.Login)
 
+	users := r.router.Group("/users")
+	users.POST("", r.middleware.Auth, r.user.CreateUser)
+
 	r.router.Run(port)
 }

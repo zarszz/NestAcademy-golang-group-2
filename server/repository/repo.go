@@ -7,3 +7,7 @@ type UserRepo interface {
 	Register(user *model.User) error
 	FindUserByEmail(email string) (*model.User, error)
 }
+
+type UserDetailRepo interface {
+	CreateUserDetail(user *model.UserDetail) error
+}
