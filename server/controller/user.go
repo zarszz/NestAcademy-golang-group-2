@@ -1,7 +1,10 @@
 package controller
 
 import (
+	"strconv"
+
 	"github.com/zarszz/NestAcademy-golang-group-2/server/custom_error"
+	"github.com/zarszz/NestAcademy-golang-group-2/server/model"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/params"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/service"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/view"
@@ -21,13 +24,38 @@ func NewUserController(svc *service.UserServices, userDetailsvc *service.UserDet
 	}
 }
 
-// func (u *UserController) GetUsers(c *gin.Context) {
-// 	fmt.Println("Log from ", c.GetString("USER_EMAIL"))
-// 	resp := u.svc.GetUsers()
+func (u *UserController) GetUsers(c *gin.Context) {
+	limitStr, isLimitExist := c.GetQuery("limit")
+	pageStr, isPageExist := c.GetQuery("page")
 
-// 	WriteJsonResponseGin(c, resp)
+	var limit int
+	var page int
 
-// }
+	if !isLimitExist {
+		limit = 25
+	} else {
+		limit, _ = strconv.Atoi(limitStr)
+	}
+
+	if !isPageExist {
+		page = 1
+	} else {
+		page, _ = strconv.Atoi(pageStr)
+	}
+
+	res, count, err := u.svc.FindAllUsers(page, limit)
+
+	if err != nil {
+		info := view.AdditionalInfoError{
+			Message: err.Error(),
+		}
+		payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+		WriteErrorJsonResponse(c, payload)
+	}
+
+	payload := view.SuccessWithPaginationData(makeListViewUser(res), "GET_ALL_USERS_SUCCESS", limit, page, int(*count))
+	WriteJsonResponseGetPaginationSuccess(c, payload)
+}
 
 func (u *UserController) Register(c *gin.Context) {
 	var req params.Register
@@ -113,4 +141,33 @@ func (u *UserController) CreateUser(c *gin.Context) {
 
 	view := view.SuccessCreated("CREATED_USER_SUCCESS")
 	WriteJsonResponseSuccess(c, view)
+}
+
+func makeListViewUser(users *[]model.User) *[]params.GetUser {
+	var userList []params.GetUser
+	for _, user := range *users {
+		userList = append(userList, *makeSingleViewUser(&user))
+	}
+	return &userList
+}
+
+func makeSingleViewUser(user *model.User) *params.GetUser {
+	return &params.GetUser{
+		ID:       user.Id,
+		FullName: user.UserDetail.FullName,
+		Address: params.UserAddress{
+			City: params.LocationIdentity{
+				ID:   user.UserDetail.CityId,
+				Name: user.UserDetail.City,
+			},
+			Province: params.LocationIdentity{
+				ID:   user.UserDetail.ProvinceId,
+				Name: user.UserDetail.Province,
+			},
+			Street: user.UserDetail.Street,
+		},
+		Auth: params.UserAuth{
+			Email: user.Email,
+		},
+	}
 }

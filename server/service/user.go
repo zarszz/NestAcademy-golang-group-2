@@ -1,11 +1,13 @@
 package service
 
 import (
+	"database/sql"
 	"log"
 	"time"
 
 	"github.com/zarszz/NestAcademy-golang-group-2/helper"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/custom_error"
+	"github.com/zarszz/NestAcademy-golang-group-2/server/model"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/params"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/repository"
 
@@ -69,6 +71,28 @@ func (u *UserServices) Login(req *params.Login) (*string, error) {
 	}
 
 	return &tokString, nil
+}
+
+func (u *UserServices) FindByID(id string) (*model.User, error) {
+	user, err := u.repo.FindUserByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, custom_error.ErrNotFound
+		}
+		return nil, custom_error.ErrInternalServer
+	}
+	return user, nil
+}
+
+func (u *UserServices) FindAllUsers(page int, limit int) (*[]model.User, *int64, error) {
+	user, count, err := u.repo.FindAllUsers(limit, page)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil, custom_error.ErrNotFound
+		}
+		return nil, nil, custom_error.ErrInternalServer
+	}
+	return user, count, nil
 }
 
 // func (u *UserServices) FindUserByEmail(email string) {

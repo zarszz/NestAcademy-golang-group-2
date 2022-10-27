@@ -44,3 +44,25 @@ func (u *userRepo) FindUserByEmail(email string) (*model.User, error) {
 	}
 	return &user, nil
 }
+
+func (u *userRepo) FindUserByID(id string) (*model.User, error) {
+	var user model.User
+	err := u.db.Where("id=?", id).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (u *userRepo) FindAllUsers(limit int, page int) (*[]model.User, *int64 , error) {
+	var users []model.User
+	offset := (page - 1) * limit
+	queryBuilder := u.db.Limit(limit).Offset(offset)
+	trx := queryBuilder.Model(&model.User{}).Preload("UserDetail").Find(&users)
+	count := trx.RowsAffected
+	err := trx.Error
+	if err != nil {
+		return nil, nil, err
+	}
+	return &users, &count, nil
+}

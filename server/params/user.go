@@ -21,6 +21,28 @@ type CreateUser struct {
 	ProvinceId string `json:"province_id"`
 }
 
+type GetUser struct {
+	ID       string      `json:"id"`
+	FullName string      `json:"full_name"`
+	Address  UserAddress `json:"address"`
+	Auth     UserAuth    `json:"auth"`
+}
+
+type UserAddress struct {
+	City     LocationIdentity `json:"city"`
+	Province LocationIdentity `json:"province"`
+	Street   string           `json:"street"`
+}
+
+type LocationIdentity struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type UserAuth struct {
+	Email string `json:"email"`
+}
+
 func Validate(u interface{}) error {
 	err := validator.New().Struct(u)
 	if err == nil {

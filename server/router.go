@@ -29,6 +29,7 @@ func (r *Router) Start(port string) {
 
 	users := r.router.Group("/users")
 	users.POST("", r.middleware.Auth, r.user.CreateUser)
+	users.GET("", r.middleware.Auth, r.middleware.CheckRole(r.user.GetUsers, []string{"admin", "owner"}))
 
 	r.router.Run(port)
 }

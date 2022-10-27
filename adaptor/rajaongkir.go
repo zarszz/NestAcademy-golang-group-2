@@ -9,9 +9,9 @@ import (
 
 type RajaOngkirGetCity struct {
 	Rajaongkir struct {
-		Query   Query   `json:"query"`
-		Status  Status  `json:"status"`
-		Results Results `json:"results"`
+		Query   interface{} `json:"query"`
+		Status  Status      `json:"status"`
+		Results Results     `json:"results"`
 	} `json:"rajaongkir"`
 }
 
@@ -49,7 +49,7 @@ func (r *RajaOngkirAdaptor) GetCity(cityID string, provinceID string) (*RajaOngk
 	config, _ := config.LoadConfig(".")
 	headers := map[string]string{"key": config.RajaongkirSecret}
 	query := map[string]string{"id": cityID, "province": provinceID}
-	resp, err := r.httpClient.GetWithHeadersAndQuery("/starter/city", &headers, &query)
+	resp, err := r.httpClient.GetWithHeadersAndQuery("starter/city", &headers, &query)
 	if err != nil {
 		return nil, err
 	}

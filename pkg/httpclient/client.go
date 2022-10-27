@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 )
 
 type Client struct {
@@ -75,11 +74,13 @@ func (c *Client) build(method string, path string, payload []byte, headers *map[
 		}
 	}
 
+	q := req.URL.Query()
 	if query != nil {
 		for k, v := range *query {
-			req.URL.RawQuery = url.Values{k: {v}}.Encode()
+			q.Add(k, v)
 		}
 	}
+	req.URL.RawQuery = q.Encode()
 
 	req.Header.Set("Content-Type", "application/json")
 
