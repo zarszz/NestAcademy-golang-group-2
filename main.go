@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/zarszz/NestAcademy-golang-group-2/adaptor"
 	"github.com/zarszz/NestAcademy-golang-group-2/config"
 	"github.com/zarszz/NestAcademy-golang-group-2/db"
 	"github.com/zarszz/NestAcademy-golang-group-2/server"
@@ -24,8 +25,10 @@ func main() {
 		panic(err)
 	}
 
+	rajaOngkirAdaptor := adaptor.NewRajaOngkirAdapter(config.RajaongkirBaseUrl)
+
 	userDetailRepo := gorm_postgres.NewUserDetailGormRepository(db)
-	userDetailSvc := service.NewUserDetailService(userDetailRepo)
+	userDetailSvc := service.NewUserDetailService(userDetailRepo, rajaOngkirAdaptor)
 
 	userRepo := gorm_postgres.NewUserRepoGormPostgres(db)
 	userSvc := service.NewServices(userRepo)

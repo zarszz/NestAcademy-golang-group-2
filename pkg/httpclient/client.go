@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
 type Client struct {
@@ -19,7 +20,19 @@ func NewHttpClient(baseUrl string) *Client {
 }
 
 func (c *Client) Get(path string) ([]byte, error) {
-	data, err := c.build(http.MethodGet, path, nil)
+	data, err := c.build(http.MethodGet, path, nil, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	dataByte, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	return dataByte, nil
+}
+
+func (c *Client) GetWithHeadersAndQuery(path string, headers *map[string]string, query *map[string]string) ([]byte, error) {
+	data, err := c.build(http.MethodGet, path, nil, headers, query)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +49,7 @@ func (c *Client) Post(path string, payload interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	data, err := c.build(http.MethodPost, path, dataByte)
+	data, err := c.build(http.MethodPost, path, dataByte, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -48,12 +61,24 @@ func (c *Client) Post(path string, payload interface{}) ([]byte, error) {
 	return respData, nil
 }
 
-func (c *Client) build(method string, path string, payload []byte) (interface{}, error) {
+func (c *Client) build(method string, path string, payload []byte, headers *map[string]string, query *map[string]string) (interface{}, error) {
 	client := http.Client{}
 
 	req, err := http.NewRequest(method, fmt.Sprintf("%v/%v", c.baseUrl, path), bytes.NewBuffer(payload))
 	if err != nil {
 		return nil, err
+	}
+
+	if headers != nil {
+		for k, v := range *headers {
+			req.Header.Add(k, v)
+		}
+	}
+
+	if query != nil {
+		for k, v := range *query {
+			req.URL.RawQuery = url.Values{k: {v}}.Encode()
+		}
 	}
 
 	req.Header.Set("Content-Type", "application/json")
