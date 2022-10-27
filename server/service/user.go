@@ -84,7 +84,7 @@ func (u *UserServices) FindByID(id string) (*model.User, error) {
 	return user, nil
 }
 
-func (u *UserServices) FindWithDetailByID(id string) (*model.User, error) {
+func (u *UserServices) FindWithDetailByID(id string) (*params.GetUser, error) {
 	user, err := u.repo.FindUserWithDetailByID(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -92,10 +92,10 @@ func (u *UserServices) FindWithDetailByID(id string) (*model.User, error) {
 		}
 		return nil, custom_error.ErrInternalServer
 	}
-	return user, nil
+	return makeSingleViewUser(user), nil
 }
 
-func (u *UserServices) FindAllUsers(page int, limit int) (*[]model.User, *int64, error) {
+func (u *UserServices) FindAllUsers(page int, limit int) (*[]params.GetUser, *int64, error) {
 	user, count, err := u.repo.FindAllUsers(limit, page)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -103,10 +103,10 @@ func (u *UserServices) FindAllUsers(page int, limit int) (*[]model.User, *int64,
 		}
 		return nil, nil, custom_error.ErrInternalServer
 	}
-	return user, count, nil
+	return makeListViewUser(user), count, nil
 }
 
-func (u *UserServices) FindUserByEmail(email string) (*model.User, error) {
+func (u *UserServices) FindUserByEmail(email string) (*params.GetUser, error) {
 	user, err := u.repo.FindUserByEmail(email)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -114,5 +114,34 @@ func (u *UserServices) FindUserByEmail(email string) (*model.User, error) {
 		}
 		return nil, custom_error.ErrInternalServer
 	}
-	return user, nil
+	return makeSingleViewUser(user), nil
+}
+
+func makeListViewUser(users *[]model.User) *[]params.GetUser {
+	var userList []params.GetUser
+	for _, user := range *users {
+		userList = append(userList, *makeSingleViewUser(&user))
+	}
+	return &userList
+}
+
+func makeSingleViewUser(user *model.User) *params.GetUser {
+	return &params.GetUser{
+		ID:       user.Id,
+		FullName: user.UserDetail.FullName,
+		Address: params.UserAddress{
+			City: params.LocationIdentity{
+				ID:   user.UserDetail.CityId,
+				Name: user.UserDetail.City,
+			},
+			Province: params.LocationIdentity{
+				ID:   user.UserDetail.ProvinceId,
+				Name: user.UserDetail.Province,
+			},
+			Street: user.UserDetail.Street,
+		},
+		Auth: params.UserAuth{
+			Email: user.Email,
+		},
+	}
 }

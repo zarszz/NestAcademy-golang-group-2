@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/zarszz/NestAcademy-golang-group-2/server/custom_error"
-	"github.com/zarszz/NestAcademy-golang-group-2/server/model"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/params"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/service"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/view"
@@ -43,7 +42,7 @@ func (u *UserController) GetUsers(c *gin.Context) {
 		page, _ = strconv.Atoi(pageStr)
 	}
 
-	res, count, err := u.svc.FindAllUsers(page, limit)
+	users, count, err := u.svc.FindAllUsers(page, limit)
 
 	if err != nil {
 		info := view.AdditionalInfoError{
@@ -53,7 +52,7 @@ func (u *UserController) GetUsers(c *gin.Context) {
 		WriteErrorJsonResponse(c, payload)
 	}
 
-	payload := view.SuccessWithPaginationData(makeListViewUser(res), "GET_ALL_USERS_SUCCESS", limit, page, int(*count))
+	payload := view.SuccessWithPaginationData(users, "GET_ALL_USERS_SUCCESS", limit, page, int(*count))
 	WriteJsonResponseGetPaginationSuccess(c, payload)
 }
 
@@ -156,8 +155,7 @@ func (u *UserController) Profile(c *gin.Context) {
 			return
 		}
 	}
-	userParam := makeSingleViewUser(user)
-	view := view.SuccessWithData(userParam, "GET_USER_PROFILE_SUCCESS")
+	view := view.SuccessWithData(user, "GET_USER_PROFILE_SUCCESS")
 	WriteJsonResponseGetSuccess(c, view)
 }
 
@@ -191,8 +189,7 @@ func (u *UserController) GetByEmail(c *gin.Context) {
 		return
 	}
 
-	userView := makeSingleViewUser(user)
-	payload := view.SuccessWithData(userView, "GET_USER_BY_EMAIL_FAIL")
+	payload := view.SuccessWithData(user, "GET_USER_BY_EMAIL_FAIL")
 	WriteJsonResponseGetSuccess(c, payload)
 }
 
@@ -223,33 +220,4 @@ func (u *UserController) UpdateUserProfile(c *gin.Context) {
 
 	payload := view.OperationSuccess("UPDATE_USER_SUCCESS")
 	WriteJsonResponseSuccess(c, payload)
-}
-
-func makeListViewUser(users *[]model.User) *[]params.GetUser {
-	var userList []params.GetUser
-	for _, user := range *users {
-		userList = append(userList, *makeSingleViewUser(&user))
-	}
-	return &userList
-}
-
-func makeSingleViewUser(user *model.User) *params.GetUser {
-	return &params.GetUser{
-		ID:       user.Id,
-		FullName: user.UserDetail.FullName,
-		Address: params.UserAddress{
-			City: params.LocationIdentity{
-				ID:   user.UserDetail.CityId,
-				Name: user.UserDetail.City,
-			},
-			Province: params.LocationIdentity{
-				ID:   user.UserDetail.ProvinceId,
-				Name: user.UserDetail.Province,
-			},
-			Street: user.UserDetail.Street,
-		},
-		Auth: params.UserAuth{
-			Email: user.Email,
-		},
-	}
 }
