@@ -38,7 +38,7 @@ func (u *userRepo) Register(user *model.User) error {
 
 func (u *userRepo) FindUserByEmail(email string) (*model.User, error) {
 	var user model.User
-	err := u.db.Where("email=?", email).First(&user).Error
+	err := u.db.Where("email=?", email).Preload("UserDetail").First(&user).Error
 	if err != nil {
 		return nil, err
 	}

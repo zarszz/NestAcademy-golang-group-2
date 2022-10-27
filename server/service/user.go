@@ -106,13 +106,13 @@ func (u *UserServices) FindAllUsers(page int, limit int) (*[]model.User, *int64,
 	return user, count, nil
 }
 
-// func (u *UserServices) FindUserByEmail(email string) {
-// 	user, err := u.repo.FindUserByEmail(email)
-// 	if err != nil {
-// 		if err == sql.ErrNoRows {
-// 			return view.ErrNotFound()
-// 		}
-// 		return view.ErrInternalServer(err.Error())
-// 	}
-// 	return view.SuccessFindAll(user)
-// }
+func (u *UserServices) FindUserByEmail(email string) (*model.User, error) {
+	user, err := u.repo.FindUserByEmail(email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, custom_error.ErrNotFound
+		}
+		return nil, custom_error.ErrInternalServer
+	}
+	return user, nil
+}

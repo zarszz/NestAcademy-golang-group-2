@@ -161,6 +161,41 @@ func (u *UserController) Profile(c *gin.Context) {
 	WriteJsonResponseGetSuccess(c, view)
 }
 
+func (u *UserController) GetByEmail(c *gin.Context) {
+	email := c.Param("email")
+	currentUserEmail := c.GetString("USER_EMAIL")
+	user, err := u.svc.FindUserByEmail(email)
+	if err != nil {
+		if err == custom_error.ErrNotFound {
+			info := view.AdditionalInfoError{
+				Message: "User not found",
+			}
+			payload := view.ErrNotFound(info, "GET_USER_BY_EMAIL_FAIL")
+			WriteErrorJsonResponse(c, payload)
+			return
+		}
+		info := view.AdditionalInfoError{
+			Message: "Oopss.. something wrong",
+		}
+		payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+		WriteErrorJsonResponse(c, payload)
+		return
+	}
+
+	if email != currentUserEmail {
+		info := view.AdditionalInfoError{
+			Message: "you dont have access for this resources",
+		}
+		payload := view.ErrForbidden(info, "GET_USER_BY_EMAIL_FAIL")
+		WriteErrorJsonResponse(c, payload)
+		return
+	}
+
+	userView := makeSingleViewUser(user)
+	payload := view.SuccessWithData(userView, "GET_USER_BY_EMAIL_FAIL")
+	WriteJsonResponseGetSuccess(c, payload)
+}
+
 func makeListViewUser(users *[]model.User) *[]params.GetUser {
 	var userList []params.GetUser
 	for _, user := range *users {
