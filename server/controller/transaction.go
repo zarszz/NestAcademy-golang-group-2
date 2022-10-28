@@ -38,3 +38,28 @@ func (t *TransactionController) Inquiry(c *gin.Context) {
 
 	WriteJsonResponseGetSuccess(c, payload)
 }
+
+func (t *TransactionController) Confirm(c *gin.Context) {
+	var confirmation params.ConfirmTransaction
+	if err := c.ShouldBindJSON(&confirmation); err != nil {
+		WriteInvalidRequestPayloadResponse(c, err.Error())
+		return
+	}
+
+	userID := c.GetString("USER_ID")
+	err := t.svc.ConfirmTransaction(&confirmation, userID)
+	if err != nil {
+		if err == custom_error.ErrOutOfStock {
+			WriteUnprocessableEntityError(c, "stock prodcut not enough", "CONFIRM_TRANSACTION_FAIL")
+			return
+		}
+		payload := view.ErrInternalServer(view.AdditionalInfoError{
+			Message: err.Error(),
+		}, "CONFIRM_TRANSACTION_FAIL")
+		WriteErrorJsonResponse(c, payload)
+		return
+	}
+	payload := view.OperationSuccess("CONFIRM_TRANSACTION_SUCCESS")
+
+	WriteJsonResponseSuccess(c, payload)
+}

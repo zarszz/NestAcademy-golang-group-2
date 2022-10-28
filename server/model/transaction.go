@@ -1,7 +1,11 @@
 package model
 
+import "time"
+
 type Transaction struct {
-	BaseModel             BaseModel
+	Id                    string `json:"id"`
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 	Quantity              int     `json:"quantity"`
 	Weight                int     `json:"weight"`
 	TotalPrice            int     `json:"total_price"`
@@ -11,10 +15,12 @@ type Transaction struct {
 	DestinationProvinceID string  `json:"destination_province_id"`
 	CourierCode           string  `json:"courier_code"`
 	CourierService        string  `json:"courier_service"`
-	CourierCost           string  `json:"courier_cost"`
+	CourierCost           int     `json:"courier_cost"`
 	CourierEstimation     string  `json:"courier_estimation"`
 	Status                string  `json:"status"`
 	EstimationArrived     string  `json:"estimation_arrived"`
+	ProductID             string  `json:"product_id"`
 	Product               Product `json:"product"`
+	UserID                string  `json:"user_id"`
 	User                  User    `json:"user"`
 }

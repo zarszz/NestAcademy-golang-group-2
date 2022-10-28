@@ -31,7 +31,7 @@ func ConnectGormDB(config config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	db.Debug().AutoMigrate(model.User{}, model.UserDetail{}, model.Product{})
+	db.Debug().AutoMigrate(model.User{}, model.UserDetail{}, model.Product{}, model.Transaction{})
 
 	return db, nil
 }

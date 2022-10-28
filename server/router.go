@@ -47,6 +47,7 @@ func (r *Router) Start(port string) {
 
 	transaction := r.router.Group("/transaction")
 	transaction.POST("inquiry", r.middleware.Auth, r.transaction.Inquiry)
+	transaction.POST("confirm", r.middleware.Auth, r.middleware.CheckRole(r.transaction.Confirm, []string{"customer"}))
 
 	r.router.Run(port)
 }

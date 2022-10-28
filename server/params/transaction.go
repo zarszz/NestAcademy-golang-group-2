@@ -43,3 +43,20 @@ type InquiryServiceCost struct {
 	Estimation string `json:"estimation"`
 	Note       string `json:"note"`
 }
+
+type ConfirmTransaction struct {
+	ProductID   string                    `json:"product_id"`
+	ProductName string                    `json:"product_name"`
+	Quantity    int                       `json:"quantity"`
+	Destination int                       `json:"destination"`
+	Weight      int                       `json:"weight"`
+	TotalPrice  int                       `json:"total_price"`
+	Courier     ConfirmTransactionCourier `json:"courier"`
+}
+
+type ConfirmTransactionCourier struct {
+	Code       string `json:"code"`
+	Service    string `json:"service"`
+	Cost       int    `json:"cost"`
+	Estimation string `json:"estimation"`
+}
