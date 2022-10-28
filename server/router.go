@@ -29,6 +29,13 @@ func (r *Router) Start(port string) {
 	auth.POST("/register", r.user.Register)
 	auth.POST("/login", r.user.Login)
 
+	users := r.router.Group("/users")
+	users.POST("", r.middleware.Auth, r.user.CreateUser)
+	users.GET("", r.middleware.Auth, r.middleware.CheckRole(r.user.GetUsers, []string{"admin", "owner"}))
+	users.GET("/profile", r.middleware.Auth, r.user.Profile)
+	users.GET("/email/:email", r.middleware.Auth, r.user.GetByEmail)
+	users.PUT("/profile", r.middleware.Auth, r.user.UpdateUserProfile)
+
 	product := r.router.Group("/product")
 	product.GET("", r.product.GetProducts)
 	product.POST("", r.product.CreateProduct)

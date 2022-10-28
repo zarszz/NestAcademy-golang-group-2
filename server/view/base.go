@@ -47,11 +47,32 @@ func SuccessCreated(message string) *ResponseSuccess {
 	}
 }
 
+func OperationSuccess(message string) *ResponseSuccess {
+	return &ResponseSuccess{
+		Status:      http.StatusOK,
+		Message:     message,
+		GeneralInfo: "Group-2",
+	}
+}
+
 func SuccessWithData(payload interface{}, message string) *ResponseWithDataSuccess {
 	return &ResponseWithDataSuccess{
 		Status:  http.StatusOK,
 		Message: message,
 		Payload: payload,
+	}
+}
+
+func SuccessWithPaginationData(payload interface{}, message string, limit int, page int, total int) *ResponseGetPaginationSuccess {
+	return &ResponseGetPaginationSuccess{
+		Status:  http.StatusOK,
+		Message: message,
+		Payload: payload,
+		Query: Query{
+			Limit: limit,
+			Page:  page,
+			Total: total,
+		},
 	}
 }
 
@@ -100,6 +121,16 @@ func ErrUnauthorized(additionalInfo interface{}, message string) *ResponseFailed
 		AdditionalInfo: additionalInfo,
 		Message:        message,
 		Error:          "UNAUTHORIZED",
+		GeneralInfo:    "Kelompok-2",
+	}
+}
+
+func ErrForbidden(additionalInfo interface{}, message string) *ResponseFailed {
+	return &ResponseFailed{
+		Status:         http.StatusForbidden,
+		AdditionalInfo: additionalInfo,
+		Message:        message,
+		Error:          "FORBIDDEN_ACCESS",
 		GeneralInfo:    "Kelompok-2",
 	}
 }

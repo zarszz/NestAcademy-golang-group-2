@@ -6,6 +6,14 @@ type UserRepo interface {
 	GetUsers() (*[]model.User, error)
 	Register(user *model.User) error
 	FindUserByEmail(email string) (*model.User, error)
+	FindUserByID(id string) (*model.User, error)
+	FindAllUsers(limit int, page int) (*[]model.User, *int64, error)
+	FindUserWithDetailByID(id string) (*model.User, error)
+}
+
+type UserDetailRepo interface {
+	CreateUserDetail(user *model.UserDetail) error
+	UpdateUserDetail(user *model.UserDetail, userID string) error
 }
 
 type ProductRepo interface {
