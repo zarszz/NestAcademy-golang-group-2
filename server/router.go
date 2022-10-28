@@ -7,18 +7,20 @@ import (
 )
 
 type Router struct {
-	router     *gin.Engine
-	user       *controller.UserController
-	product    *controller.ProductHandler
-	middleware *Middleware
+	router      *gin.Engine
+	user        *controller.UserController
+	product     *controller.ProductHandler
+	transaction *controller.TransactionController
+	middleware  *Middleware
 }
 
-func NewRouter(router *gin.Engine, user *controller.UserController, product *controller.ProductHandler, middleware *Middleware) *Router {
+func NewRouter(router *gin.Engine, user *controller.UserController, product *controller.ProductHandler, transaction *controller.TransactionController, middleware *Middleware) *Router {
 	return &Router{
-		router:     router,
-		user:       user,
-		product:    product,
-		middleware: middleware,
+		router:      router,
+		user:        user,
+		product:     product,
+		middleware:  middleware,
+		transaction: transaction,
 	}
 }
 
@@ -42,6 +44,9 @@ func (r *Router) Start(port string) {
 	product.GET("/id/:productId", r.product.FindProductByID)
 	product.PUT("/id/:productId", r.product.UpdateProduct)
 	product.DELETE("/id/:productId", r.product.DeleteProduct)
+
+	transaction := r.router.Group("/transaction")
+	transaction.POST("inquiry", r.middleware.Auth, r.transaction.Inquiry)
 
 	r.router.Run(port)
 }

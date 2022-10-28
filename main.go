@@ -38,12 +38,16 @@ func main() {
 	productSvc := service.NewProductServices(productRepo)
 	productHandler := controller.NewProductHandler(productSvc)
 
+	transactionRepo := gorm_postgres.NewTransactionGormRepository(db)
+	transactionSvc := service.NewTransactionService(*rajaOngkirAdaptor, userRepo, productRepo, transactionRepo)
+	transactionHandler := controller.NewTransactionController(transactionSvc)
+
 	router := gin.Default()
 	router.Use(gin.Logger())
 
 	middleware := server.NewMiddleware(userSvc)
 
-	app := server.NewRouter(router, userHandler, productHandler, middleware)
+	app := server.NewRouter(router, userHandler, productHandler, transactionHandler, middleware)
 
 	app.Start(":" + config.Port)
 }

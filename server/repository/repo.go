@@ -19,7 +19,11 @@ type UserDetailRepo interface {
 type ProductRepo interface {
 	GetProducts(limit int, offset int) (*[]model.Product, error)
 	CreateProduct(product *model.Product) error
-	FindProductByID(id int) (*model.Product, error)
+	FindProductByID(id string) (*model.Product, error)
 	UpdateProduct(product *model.Product) error
-	DeleteProduct(id int) error
+	DeleteProduct(id string) error
+}
+
+type TransactionRepo interface {
+	Create(transaction *model.Transaction) error
 }

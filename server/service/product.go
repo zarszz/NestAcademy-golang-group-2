@@ -45,7 +45,7 @@ func (s *ProductService) CreateProduct(req *params.StoreProductRequest) (*view.R
 	return view.SuccessCreated("Success create product"), nil
 }
 
-func (s *ProductService) FindProductByID(id int) (*view.ResponseWithDataSuccess, *view.ResponseFailed) {
+func (s *ProductService) FindProductByID(id string) (*view.ResponseWithDataSuccess, *view.ResponseFailed) {
 	product, err := s.repo.FindProductByID(id)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -69,7 +69,7 @@ func (s *ProductService) UpdateProduct(req *params.StoreProductRequest) (*view.R
 	return view.SuccessCreated("Success update product"), nil
 }
 
-func (s *ProductService) DeleteProduct(id int) (*view.ResponseSuccess, *view.ResponseFailed) {
+func (s *ProductService) DeleteProduct(id string) (*view.ResponseSuccess, *view.ResponseFailed) {
 	err := s.repo.DeleteProduct(id)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {

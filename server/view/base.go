@@ -135,6 +135,16 @@ func ErrForbidden(additionalInfo interface{}, message string) *ResponseFailed {
 	}
 }
 
+func ErrUnprocessableEntity(additionalInfo interface{}, message string) *ResponseFailed {
+	return &ResponseFailed{
+		Status:         http.StatusUnprocessableEntity,
+		AdditionalInfo: additionalInfo,
+		Message:        message,
+		Error:          "UNPROCESSABLE_ENTITY",
+		GeneralInfo:    "Kelompok-2",
+	}
+}
+
 func InvalidRequestPayload() *AdditionalInfoError {
 	return &AdditionalInfoError{
 		Message: "invalid request payload",

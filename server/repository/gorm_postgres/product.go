@@ -31,10 +31,10 @@ func (p *productRepo) CreateProduct(product *model.Product) error {
 	return p.db.Create(product).Error
 }
 
-func (p *productRepo) FindProductByID(id int) (*model.Product, error) {
+func (p *productRepo) FindProductByID(id string) (*model.Product, error) {
 	var product model.Product
 
-	err := p.db.First(&product, id).Error
+	err := p.db.Where("id=?", id).Find(&product).Error
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +45,6 @@ func (p *productRepo) UpdateProduct(product *model.Product) error {
 	return p.db.Save(product).Error
 }
 
-func (p *productRepo) DeleteProduct(id int) error {
+func (p *productRepo) DeleteProduct(id string) error {
 	return p.db.Delete(&model.Product{}, id).Error
 }
