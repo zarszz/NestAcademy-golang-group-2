@@ -1,5 +1,7 @@
 package params
 
+import "time"
+
 type InquiryRequest struct {
 	ProductID   string `json:"product_id"`
 	ProductName string `json:"product_name"`
@@ -59,4 +61,35 @@ type ConfirmTransactionCourier struct {
 	Service    string `json:"service"`
 	Cost       int    `json:"cost"`
 	Estimation string `json:"estimation"`
+}
+
+type Transaction struct {
+	ID                string      `json:"id"`
+	ProductID         string      `json:"product_id"`
+	ProductName       string      `json:"product_name"`
+	Quantity          string      `json:"quantity"`
+	Destination       Destination `json:"destination"`
+	Weight            string      `json:"weight"`
+	TotalPrice        string      `json:"total_price"`
+	Courier           Courier     `json:"courier"`
+	Status            string      `json:"status"`
+	EstimationArrived string      `json:"estimation_arrived"`
+	CreatedAt         time.Time   `json:"created_at"`
+	UpdatedAt         time.Time   `json:"updated_at"`
+}
+
+type Destination struct {
+	City     string `json:"city"`
+	Province string `json:"province"`
+}
+
+type Courier struct {
+	Code       string `json:"code"`
+	Service    string `json:"service"`
+	Cost       string `json:"cost"`
+	Estimation string `json:"estimation"`
+}
+
+type UpdateTrxStatus struct {
+	Status string `json:"status"`
 }

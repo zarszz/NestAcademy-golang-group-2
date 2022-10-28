@@ -26,4 +26,7 @@ type ProductRepo interface {
 
 type TransactionRepo interface {
 	Create(transaction *model.Transaction) error
+	FindAllByUserID(limit int, page int, userID string) (*[]model.Transaction, *int, error)
+	FindAll(limit int, page int) (*[]model.Transaction, *int, error)
+	UpdateStatus(newStatus string, trxID string) error
 }

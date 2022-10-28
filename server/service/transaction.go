@@ -157,6 +157,33 @@ func (t *TransactionService) ConfirmTransaction(confirmTransaction *params.Confi
 	return nil
 }
 
+func (t *TransactionService) GetTransactionsByUserID(limit int, page int, userID string) (*[]params.Transaction, *int, error) {
+	trx, count, err := t.transactionRepo.FindAllByUserID(limit, page, userID)
+	if err != nil {
+		fmt.Printf("[GetTransactionsByUserID] error : %v", err)
+		return nil, nil, err
+	}
+	return makeListTransactionView(trx), count, nil
+}
+
+func (t *TransactionService) GetTransactions(limit int, page int) (*[]params.Transaction, *int, error) {
+	trx, count, err := t.transactionRepo.FindAll(limit, page)
+	if err != nil {
+		fmt.Printf("[GetTransactions] error : %v", err)
+		return nil, nil, err
+	}
+	return makeListTransactionView(trx), count, nil
+}
+
+func (t *TransactionService) UpdateStatus(newStatus string, trxID string) error {
+	err := t.transactionRepo.UpdateStatus(newStatus, trxID)
+	if err != nil {
+		fmt.Printf("[UpdateStatus] error : %v", err)
+		return err
+	}
+	return nil
+}
+
 func parseToStruct(rajaongkirResp *adaptor.RajaongkirCost) *[]params.InquiryServicesCourier {
 	var servicesCourier []params.InquiryServicesCourier
 
@@ -183,4 +210,37 @@ func parseToStruct(rajaongkirResp *adaptor.RajaongkirCost) *[]params.InquiryServ
 		servicesCourier = append(servicesCourier, service)
 	}
 	return &servicesCourier
+}
+
+func makeListTransactionView(trxs *[]model.Transaction) *[]params.Transaction {
+	var res []params.Transaction
+	for _, trx := range *trxs {
+		res = append(res, *makeSingleTransactionView(&trx))
+	}
+	return &res
+}
+
+func makeSingleTransactionView(trx *model.Transaction) *params.Transaction {
+	return &params.Transaction{
+		ID:          trx.Id,
+		ProductID:   trx.ProductID,
+		ProductName: trx.Product.Name,
+		Quantity:    strconv.Itoa(trx.Quantity),
+		Destination: params.Destination{
+			City:     trx.DestinationCity,
+			Province: trx.DestinationProvince,
+		},
+		Weight:     strconv.Itoa(trx.Weight),
+		TotalPrice: strconv.Itoa(trx.TotalPrice),
+		Courier: params.Courier{
+			Code:       trx.CourierCode,
+			Service:    trx.CourierService,
+			Cost:       strconv.Itoa(trx.CourierCost),
+			Estimation: trx.CourierEstimation,
+		},
+		Status:            trx.Status,
+		EstimationArrived: trx.EstimationArrived,
+		CreatedAt:         trx.CreatedAt,
+		UpdatedAt:         trx.UpdatedAt,
+	}
 }
