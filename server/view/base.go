@@ -63,6 +63,15 @@ func SuccessWithData(payload interface{}, message string) *ResponseWithDataSucce
 	}
 }
 
+func SuccessGetPagination(payload interface{}, message string, query Query) *ResponseGetPaginationSuccess {
+	return &ResponseGetPaginationSuccess{
+      Status:  http.StatusOK,
+      Payload: payload,
+      Message: message,
+      Query:   query,
+    }
+}
+
 func SuccessWithPaginationData(payload interface{}, message string, limit int, page int, total int) *ResponseGetPaginationSuccess {
 	return &ResponseGetPaginationSuccess{
 		Status:  http.StatusOK,
@@ -73,7 +82,6 @@ func SuccessWithPaginationData(payload interface{}, message string, limit int, p
 			Page:  page,
 			Total: total,
 		},
-	}
 }
 
 func ErrBadRequest(additionalInfo interface{}, message string) *ResponseFailed {
@@ -105,6 +113,7 @@ func ErrInternalServer(additionalInfo interface{}, message string) *ResponseFail
 		GeneralInfo:    "Kelompok-2",
 	}
 }
+
 func ErrNotFound(additionalInfo interface{}, message string) *ResponseFailed {
 	return &ResponseFailed{
 		Status:         http.StatusNotFound,

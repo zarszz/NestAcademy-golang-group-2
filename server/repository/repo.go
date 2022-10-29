@@ -27,3 +27,11 @@ type TransactionRepo interface {
 	CekStockProduct(waybill string) ([]model.InquireTransaction, error)
 	CekRajaOngkir(inquire params.Inquire) ([]model.InquireTransaction, error)
 }
+
+type ProductRepo interface {
+	GetProducts(limit int, offset int) (*[]model.Product, error)
+	CreateProduct(product *model.Product) error
+	FindProductByID(id int) (*model.Product, error)
+	UpdateProduct(product *model.Product) error
+	DeleteProduct(id int) error
+}
