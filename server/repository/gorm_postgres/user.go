@@ -75,3 +75,24 @@ func (u *userRepo) FindAllUsers(limit int, page int) (*[]model.User, *int64, err
 	}
 	return &users, &count, nil
 }
+
+func (u *userRepo) FindAllEmployees(limit int, page int) (*[]model.User, *int64, error) {
+	var users []model.User
+	offset := (page - 1) * limit
+	queryBuilder := u.db.Limit(limit).Offset(offset)
+	trx := queryBuilder.Model(&model.User{}).Where("Role not in ('admin', 'owner', 'customer')").Preload("UserDetail").Find(&users)
+	count := trx.RowsAffected
+	err := trx.Error
+	if err != nil {
+		return nil, nil, err
+	}
+	return &users, &count, nil
+}
+
+func (u *userRepo) DeleteByID(id string) error {
+	err := u.db.Where("id=?", id).Delete(model.User{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

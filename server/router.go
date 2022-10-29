@@ -34,5 +34,11 @@ func (r *Router) Start(port string) {
 	users.GET("/email/:email", r.middleware.Auth, r.user.GetByEmail)
 	users.PUT("/profile", r.middleware.Auth, r.user.UpdateUserProfile)
 
+	users.POST("/admin", r.middleware.Auth, r.middleware.CheckRole(r.user.AdminCreateEmployee, []string{"admin", "owner"}))
+	users.GET("/admin", r.middleware.Auth, r.middleware.CheckRole(r.user.AdminGetAllEmployee, []string{"admin", "owner"}))
+	users.GET("/admin/:id", r.middleware.Auth, r.middleware.CheckRole(r.user.AdminGetEmployeeById, []string{"admin", "owner"}))
+	users.PUT("/admin/:id", r.middleware.Auth, r.middleware.CheckRole(r.user.AdminUpdateEmployee, []string{"admin", "owner"}))
+	users.DELETE("/admin/:id", r.middleware.Auth, r.middleware.CheckRole(r.user.AdminDeleteEmployee, []string{"admin", "owner"}))
+
 	r.router.Run(port)
 }

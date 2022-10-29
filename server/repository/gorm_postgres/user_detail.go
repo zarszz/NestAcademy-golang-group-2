@@ -50,3 +50,11 @@ func (u *userDetailGormRepository) UpdateUserDetail(newUserData *model.UserDetai
 	}
 	return nil
 }
+
+func (u *userDetailGormRepository) DeleteUserDetailByID(id string) error {
+	err := u.DB.Where("user_id=?", id).Delete(model.UserDetail{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

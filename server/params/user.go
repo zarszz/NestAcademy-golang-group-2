@@ -21,6 +21,12 @@ type CreateUser struct {
 	ProvinceId string `json:"province_id"`
 }
 
+type RegisterNewEmployee struct {
+	Role       string     `json:"role"`
+	Auth       Register   `json:"auth"`
+	UserDetail CreateUser `json:"user_detail"`
+}
+
 type GetUser struct {
 	ID       string      `json:"id"`
 	FullName string      `json:"full_name"`

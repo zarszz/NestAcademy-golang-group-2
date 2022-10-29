@@ -24,13 +24,13 @@ func NewServices(repo repository.UserRepo) *UserServices {
 	}
 }
 
-func (u *UserServices) Register(req *params.Register) error {
+func (u *UserServices) Register(req *params.Register, role string) error {
 	user := req.ParseToModel()
 
 	user.Id = uuid.NewString()
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
-	user.Role = "member"
+	user.Role = role
 
 	hash, err := helper.GeneratePassword(user.Password)
 	if err != nil {
@@ -115,6 +115,25 @@ func (u *UserServices) FindUserByEmail(email string) (*params.GetUser, error) {
 		return nil, custom_error.ErrInternalServer
 	}
 	return makeSingleViewUser(user), nil
+}
+
+func (u *UserServices) FindAllEmployees(page int, limit int) (*[]params.GetUser, *int64, error) {
+	user, count, err := u.repo.FindAllEmployees(limit, page)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil, custom_error.ErrNotFound
+		}
+		return nil, nil, custom_error.ErrInternalServer
+	}
+	return makeListViewUser(user), count, nil
+}
+
+func (u *UserServices) DeleteByID(userID string) error {
+	err := u.repo.DeleteByID(userID)
+	if err != nil {
+		return nil
+	}
+	return nil
 }
 
 func makeListViewUser(users *[]model.User) *[]params.GetUser {

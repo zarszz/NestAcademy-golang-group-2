@@ -9,9 +9,12 @@ type UserRepo interface {
 	FindUserByID(id string) (*model.User, error)
 	FindAllUsers(limit int, page int) (*[]model.User, *int64, error)
 	FindUserWithDetailByID(id string) (*model.User, error)
+	FindAllEmployees(page int, limit int) (*[]model.User, *int64, error)
+	DeleteByID(id string) error
 }
 
 type UserDetailRepo interface {
 	CreateUserDetail(user *model.UserDetail) error
 	UpdateUserDetail(user *model.UserDetail, userID string) error
+	DeleteUserDetailByID(id string) error
 }

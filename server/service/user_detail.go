@@ -59,3 +59,11 @@ func (u *UserDetailService) UpdateUser(user *params.CreateUser, userID string) e
 	}
 	return nil
 }
+
+func (u *UserDetailService) DeleteUserDetailByID(userID string) error {
+	err := u.repo.DeleteUserDetailByID(userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}

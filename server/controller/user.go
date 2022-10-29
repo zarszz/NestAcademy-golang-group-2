@@ -70,7 +70,7 @@ func (u *UserController) Register(c *gin.Context) {
 		return
 	}
 
-	err = u.svc.Register(&req)
+	err = u.svc.Register(&req, "customer")
 	if err != nil {
 		info := view.AdditionalInfoError{
 			Message: err.Error(),
@@ -219,5 +219,141 @@ func (u *UserController) UpdateUserProfile(c *gin.Context) {
 	}
 
 	payload := view.OperationSuccess("UPDATE_USER_SUCCESS")
+	WriteJsonResponseSuccess(c, payload)
+}
+
+func (u *UserController) AdminCreateEmployee(c *gin.Context) {
+	var param params.RegisterNewEmployee
+	if err := c.ShouldBindJSON(&param); err != nil {
+		WriteInvalidRequestPayloadResponse(c, "CREATE_EMPLOYEE_FAIL")
+		return
+	}
+
+	err := u.svc.Register(&param.Auth, param.Role)
+	if err != nil {
+		info := view.AdditionalInfoError{
+			Message: "Oopss.. something wrong",
+		}
+		payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+		WriteErrorJsonResponse(c, payload)
+		return
+	}
+
+	user, err := u.svc.FindUserByEmail(param.Auth.Email)
+	if err != nil {
+		info := view.AdditionalInfoError{
+			Message: "Oopss.. something wrong",
+		}
+		payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+		WriteErrorJsonResponse(c, payload)
+		return
+	}
+
+	err = u.userDetailsvc.CreateUserDetail(&param.UserDetail, user.ID)
+	if err != nil {
+		info := view.AdditionalInfoError{
+			Message: "Oopss.. something wrong",
+		}
+		payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+		WriteErrorJsonResponse(c, payload)
+		return
+	}
+
+	payload := view.OperationSuccess("CREATE_EMPLOYEE_SUCCESS")
+	WriteJsonResponseSuccess(c, payload)
+}
+
+func (u *UserController) AdminGetAllEmployee(c *gin.Context) {
+	limitStr, isLimitExist := c.GetQuery("limit")
+	pageStr, isPageExist := c.GetQuery("page")
+
+	var limit int
+	var page int
+
+	if !isLimitExist {
+		limit = 25
+	} else {
+		limit, _ = strconv.Atoi(limitStr)
+	}
+
+	if !isPageExist {
+		page = 1
+	} else {
+		page, _ = strconv.Atoi(pageStr)
+	}
+
+	users, count, err := u.svc.FindAllEmployees(page, limit)
+
+	if err != nil {
+		info := view.AdditionalInfoError{
+			Message: err.Error(),
+		}
+		payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+		WriteErrorJsonResponse(c, payload)
+	}
+
+	payload := view.SuccessWithPaginationData(users, "GET_ALL_EMPLOYEES_SUCCESS", limit, page, int(*count))
+	WriteJsonResponseGetPaginationSuccess(c, payload)
+}
+
+func (u *UserController) AdminGetEmployeeById(c *gin.Context) {
+	userID := c.Param("id")
+	user, err := u.svc.FindWithDetailByID(userID)
+
+	if err != nil {
+		info := view.AdditionalInfoError{
+			Message: err.Error(),
+		}
+		payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+		WriteErrorJsonResponse(c, payload)
+	}
+
+	payload := view.SuccessWithData(user, "GET_EMPLOYEE_SUCCESS")
+	WriteJsonResponseGetSuccess(c, payload)
+}
+
+func (u *UserController) AdminUpdateEmployee(c *gin.Context) {
+	userID := c.Param("id")
+	var param params.RegisterNewEmployee
+	if err := c.ShouldBindJSON(&param); err != nil {
+		WriteInvalidRequestPayloadResponse(c, "UPDATE_EMPLOYEE_FAIL")
+		return
+	}
+
+	err := u.userDetailsvc.UpdateUser(&param.UserDetail, userID)
+	if err != nil {
+		info := view.AdditionalInfoError{
+			Message: "Oopss.. something wrong",
+		}
+		payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+		WriteErrorJsonResponse(c, payload)
+		return
+	}
+	payload := view.OperationSuccess("UPDATE_EMPLOYEE_SUCCESS")
+	WriteJsonResponseSuccess(c, payload)
+}
+
+func (u *UserController) AdminDeleteEmployee(c *gin.Context) {
+	userID := c.Param("id")
+	err := u.userDetailsvc.DeleteUserDetailByID(userID)
+	if err != nil {
+		info := view.AdditionalInfoError{
+			Message: "Oopss.. something wrong",
+		}
+		payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+		WriteErrorJsonResponse(c, payload)
+		return
+	}
+
+	err = u.svc.DeleteByID(userID)
+	if err != nil {
+		info := view.AdditionalInfoError{
+			Message: "Oopss.. something wrong",
+		}
+		payload := view.ErrInternalServer(info, "INTERNAL_SERVER_ERROR")
+		WriteErrorJsonResponse(c, payload)
+		return
+	}
+	payload := view.OperationSuccess("DELETE_EMPLOYEE_SUCCESS")
 	WriteJsonResponseSuccess(c, payload)
 }
