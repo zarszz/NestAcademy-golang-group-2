@@ -34,12 +34,15 @@ func main() {
 	userSvc := service.NewServices(userRepo)
 	userHandler := controller.NewUserController(userSvc, userDetailSvc)
 
+	transactionSvc := service.TransactionServicesNew(config)
+	transactionHandler := controller.NewTransactionController(transactionSvc)
+
 	router := gin.Default()
 	router.Use(gin.Logger())
 
 	middleware := server.NewMiddleware(userSvc)
 
-	app := server.NewRouter(router, userHandler, middleware)
+	app := server.NewRouter(router, userHandler, transactionHandler, middleware)
 
 	app.Start(":4444")
 }

@@ -1,10 +1,7 @@
 package params
 
 import (
-	"errors"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/model"
-
-	"github.com/go-playground/validator/v10"
 )
 
 type Register struct {

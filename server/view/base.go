@@ -86,6 +86,16 @@ func ErrBadRequest(additionalInfo interface{}, message string) *ResponseFailed {
 	}
 }
 
+func ErrServer(statusCode int, additionalInfo interface{}) *ResponseFailed {
+	return &ResponseFailed{
+		Status:         statusCode,
+		AdditionalInfo: additionalInfo,
+		Message:        "UNPROCESSABLE_ENTITY",
+		Error:          "UNPROCESSABLE_ENTITY",
+		GeneralInfo:    "Kelompok-2",
+	}
+}
+
 func ErrInternalServer(additionalInfo interface{}, message string) *ResponseFailed {
 	return &ResponseFailed{
 		Status:         http.StatusInternalServerError,
