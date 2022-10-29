@@ -1,11 +1,13 @@
 package service
 
 import (
+	"database/sql"
 	"log"
 	"time"
 
 	"github.com/zarszz/NestAcademy-golang-group-2/helper"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/custom_error"
+	"github.com/zarszz/NestAcademy-golang-group-2/server/model"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/params"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/repository"
 
@@ -22,13 +24,13 @@ func NewServices(repo repository.UserRepo) *UserServices {
 	}
 }
 
-func (u *UserServices) Register(req *params.Register) error {
+func (u *UserServices) Register(req *params.Register, role string) error {
 	user := req.ParseToModel()
 
 	user.Id = uuid.NewString()
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
-	user.Role = "member"
+	user.Role = role
 
 	hash, err := helper.GeneratePassword(user.Password)
 	if err != nil {
@@ -71,13 +73,94 @@ func (u *UserServices) Login(req *params.Login) (*string, error) {
 	return &tokString, nil
 }
 
-// func (u *UserServices) FindUserByEmail(email string) {
-// 	user, err := u.repo.FindUserByEmail(email)
-// 	if err != nil {
-// 		if err == sql.ErrNoRows {
-// 			return view.ErrNotFound()
-// 		}
-// 		return view.ErrInternalServer(err.Error())
-// 	}
-// 	return view.SuccessFindAll(user)
-// }
+func (u *UserServices) FindByID(id string) (*model.User, error) {
+	user, err := u.repo.FindUserByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, custom_error.ErrNotFound
+		}
+		return nil, custom_error.ErrInternalServer
+	}
+	return user, nil
+}
+
+func (u *UserServices) FindWithDetailByID(id string) (*params.GetUser, error) {
+	user, err := u.repo.FindUserWithDetailByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, custom_error.ErrNotFound
+		}
+		return nil, custom_error.ErrInternalServer
+	}
+	return makeSingleViewUser(user), nil
+}
+
+func (u *UserServices) FindAllUsers(page int, limit int) (*[]params.GetUser, *int64, error) {
+	user, count, err := u.repo.FindAllUsers(limit, page)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil, custom_error.ErrNotFound
+		}
+		return nil, nil, custom_error.ErrInternalServer
+	}
+	return makeListViewUser(user), count, nil
+}
+
+func (u *UserServices) FindUserByEmail(email string) (*params.GetUser, error) {
+	user, err := u.repo.FindUserByEmail(email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, custom_error.ErrNotFound
+		}
+		return nil, custom_error.ErrInternalServer
+	}
+	return makeSingleViewUser(user), nil
+}
+
+func (u *UserServices) FindAllEmployees(page int, limit int) (*[]params.GetUser, *int64, error) {
+	user, count, err := u.repo.FindAllEmployees(limit, page)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil, custom_error.ErrNotFound
+		}
+		return nil, nil, custom_error.ErrInternalServer
+	}
+	return makeListViewUser(user), count, nil
+}
+
+func (u *UserServices) DeleteByID(userID string) error {
+	err := u.repo.DeleteByID(userID)
+	if err != nil {
+		return nil
+	}
+	return nil
+}
+
+func makeListViewUser(users *[]model.User) *[]params.GetUser {
+	var userList []params.GetUser
+	for _, user := range *users {
+		userList = append(userList, *makeSingleViewUser(&user))
+	}
+	return &userList
+}
+
+func makeSingleViewUser(user *model.User) *params.GetUser {
+	return &params.GetUser{
+		ID:       user.Id,
+		FullName: user.UserDetail.FullName,
+		Address: params.UserAddress{
+			City: params.LocationIdentity{
+				ID:   user.UserDetail.CityId,
+				Name: user.UserDetail.City,
+			},
+			Province: params.LocationIdentity{
+				ID:   user.UserDetail.ProvinceId,
+				Name: user.UserDetail.Province,
+			},
+			Street: user.UserDetail.Street,
+		},
+		Auth: params.UserAuth{
+			Email: user.Email,
+		},
+	}
+}

@@ -47,6 +47,14 @@ func SuccessCreated(message string) *ResponseSuccess {
 	}
 }
 
+func OperationSuccess(message string) *ResponseSuccess {
+	return &ResponseSuccess{
+		Status:      http.StatusOK,
+		Message:     message,
+		GeneralInfo: "Group-2",
+	}
+}
+
 func SuccessWithData(payload interface{}, message string) *ResponseWithDataSuccess {
 	return &ResponseWithDataSuccess{
 		Status:  http.StatusOK,
@@ -57,11 +65,23 @@ func SuccessWithData(payload interface{}, message string) *ResponseWithDataSucce
 
 func SuccessGetPagination(payload interface{}, message string, query Query) *ResponseGetPaginationSuccess {
 	return &ResponseGetPaginationSuccess{
+      Status:  http.StatusOK,
+      Payload: payload,
+      Message: message,
+      Query:   query,
+    }
+}
+
+func SuccessWithPaginationData(payload interface{}, message string, limit int, page int, total int) *ResponseGetPaginationSuccess {
+	return &ResponseGetPaginationSuccess{
 		Status:  http.StatusOK,
-		Payload: payload,
 		Message: message,
-		Query:   query,
-	}
+		Payload: payload,
+		Query: Query{
+			Limit: limit,
+			Page:  page,
+			Total: total,
+		},
 }
 
 func ErrBadRequest(additionalInfo interface{}, message string) *ResponseFailed {
@@ -70,6 +90,16 @@ func ErrBadRequest(additionalInfo interface{}, message string) *ResponseFailed {
 		AdditionalInfo: additionalInfo,
 		Message:        message,
 		Error:          "BAD_REQUEST",
+		GeneralInfo:    "Kelompok-2",
+	}
+}
+
+func ErrServer(statusCode int, additionalInfo interface{}) *ResponseFailed {
+	return &ResponseFailed{
+		Status:         statusCode,
+		AdditionalInfo: additionalInfo,
+		Message:        "UNPROCESSABLE_ENTITY",
+		Error:          "UNPROCESSABLE_ENTITY",
 		GeneralInfo:    "Kelompok-2",
 	}
 }
@@ -100,6 +130,16 @@ func ErrUnauthorized(additionalInfo interface{}, message string) *ResponseFailed
 		AdditionalInfo: additionalInfo,
 		Message:        message,
 		Error:          "UNAUTHORIZED",
+		GeneralInfo:    "Kelompok-2",
+	}
+}
+
+func ErrForbidden(additionalInfo interface{}, message string) *ResponseFailed {
+	return &ResponseFailed{
+		Status:         http.StatusForbidden,
+		AdditionalInfo: additionalInfo,
+		Message:        message,
+		Error:          "FORBIDDEN_ACCESS",
 		GeneralInfo:    "Kelompok-2",
 	}
 }
