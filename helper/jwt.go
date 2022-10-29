@@ -18,7 +18,7 @@ type Token struct {
 func CreateToken(payload *Token) (string, error) {
 	claims := jwt.MapClaims{
 		"payload": payload,
-		"issued":  time.Now().Add(10 * time.Minute),
+		"issued":  time.Now().Add(10 * time.Hour),
 	}
 	var conf, _ = config.LoadConfig(".")
 
