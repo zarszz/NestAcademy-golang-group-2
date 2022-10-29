@@ -46,19 +46,6 @@ type UserAuth struct {
 	Email string `json:"email"`
 }
 
-func Validate(u interface{}) error {
-	err := validator.New().Struct(u)
-	if err == nil {
-		return nil
-	}
-	myErr := err.(validator.ValidationErrors)
-	errString := ""
-	for _, e := range myErr {
-		errString += e.Field() + " is " + e.Tag()
-	}
-	return errors.New(errString)
-}
-
 type UserUpdate struct {
 	Email    string
 	Password string

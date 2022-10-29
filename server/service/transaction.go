@@ -107,12 +107,12 @@ func (t *TransactionServices) integrateToRajaOngkir(path string, bodyRequest []b
 	var client = &http.Client{}
 
 	// Set request url
-	url := t.config.RajaOngkirURL + path
+	url := t.config.RajaongkirBaseUrl + path
 
 	// Generate http body request
 	request, _ := http.NewRequest("POST", url, bytes.NewBuffer(bodyRequest))
 	// Generate http header request
-	request = t.generateHeaderRequest(request, t.config.RajaOngkirAPIKey)
+	request = t.generateHeaderRequest(request, t.config.RajaongkirSecret)
 	// Request to raja ongkir
 	response, err := client.Do(request)
 

@@ -65,11 +65,11 @@ func SuccessWithData(payload interface{}, message string) *ResponseWithDataSucce
 
 func SuccessGetPagination(payload interface{}, message string, query Query) *ResponseGetPaginationSuccess {
 	return &ResponseGetPaginationSuccess{
-      Status:  http.StatusOK,
-      Payload: payload,
-      Message: message,
-      Query:   query,
-    }
+		Status:  http.StatusOK,
+		Payload: payload,
+		Message: message,
+		Query:   query,
+	}
 }
 
 func SuccessWithPaginationData(payload interface{}, message string, limit int, page int, total int) *ResponseGetPaginationSuccess {
@@ -82,6 +82,7 @@ func SuccessWithPaginationData(payload interface{}, message string, limit int, p
 			Page:  page,
 			Total: total,
 		},
+	}
 }
 
 func ErrBadRequest(additionalInfo interface{}, message string) *ResponseFailed {

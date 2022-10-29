@@ -46,7 +46,7 @@ func main() {
 
 	middleware := server.NewMiddleware(userSvc)
 
-	app := server.NewRouter(router, userHandler, productHandler, middleware)
+	app := server.NewRouter(router, userHandler, transactionHandler, productHandler, middleware)
 
 	app.Start(":" + config.Port)
 }
