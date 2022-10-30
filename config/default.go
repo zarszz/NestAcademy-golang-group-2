@@ -12,6 +12,7 @@ type Config struct {
 	Port              string `mapstructure:"PORT"`
 	RajaongkirSecret  string `mapstructure:"RAJAONGKIR_KEY"`
 	RajaongkirBaseUrl string `mapstructure:"RAJAONGKIR_BASEURL"`
+	ShopeOriginID     string `mapstructure:"SHOP_ORIGIN_ID"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

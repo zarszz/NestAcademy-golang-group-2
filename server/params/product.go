@@ -3,6 +3,7 @@ package params
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/model"
 )
 
@@ -26,6 +27,7 @@ func (c *StoreProductRequest) ParseToModel() *model.Product {
 		Weight:      c.Weight,
 		ImageUrl:    c.ImageUrl,
 		BaseModel: model.BaseModel{
+			Id:        uuid.NewString(),
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		},
