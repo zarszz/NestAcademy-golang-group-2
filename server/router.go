@@ -56,7 +56,7 @@ func (r *Router) Start(port string) {
 
 	// transaction
 	transactions := r.router.Group("/transactions")
-	transactions.POST("/inquire", r.transaction.Inquire)
+	transactions.POST("/inquire", r.middleware.Auth, r.middleware.CheckRole(r.transaction.Inquire, []string{"customer"}))
 	transactions.POST("confirm", r.middleware.Auth, r.middleware.CheckRole(r.transaction.Confirm, []string{"customer"}))
 	transactions.GET("histories/me", r.middleware.Auth, r.transaction.FindAllByUserID)
 	transactions.GET("histories/list", r.middleware.Auth, r.middleware.CheckRole(r.transaction.FindAll, []string{"admin", "kasir"}))
