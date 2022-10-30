@@ -72,9 +72,12 @@ func (c *Client) Post(path string, payload *string) ([]byte, error) {
 func (c *Client) build(method string, path string, payload *string, headers *map[string]string, query *map[string]string, contentType *string) (interface{}, error) {
 	client := http.Client{}
 
-	req, err := http.NewRequest(method, fmt.Sprintf("%v/%v", c.baseUrl, path), strings.NewReader(*payload))
-	if err != nil {
-		return nil, err
+	var req *http.Request
+
+	if payload != nil {
+		req, _ = http.NewRequest(method, fmt.Sprintf("%v/%v", c.baseUrl, path), strings.NewReader(*payload))
+	} else {
+		req, _ = http.NewRequest(method, fmt.Sprintf("%v/%v", c.baseUrl, path), nil)
 	}
 
 	if headers != nil {

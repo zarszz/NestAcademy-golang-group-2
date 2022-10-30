@@ -45,14 +45,6 @@ func (r *Router) Start(port string) {
 	users.GET("/profile", r.middleware.Auth, r.user.Profile)
 	users.GET("/email/:email", r.middleware.Auth, r.user.GetByEmail)
 	users.PUT("/profile", r.middleware.Auth, r.user.UpdateUserProfile)
-
-	product := r.router.Group("/product")
-	product.GET("", r.product.GetProducts)
-	product.POST("", r.product.CreateProduct)
-	product.GET("/id/:productId", r.product.FindProductByID)
-	product.PUT("/id/:productId", r.product.UpdateProduct)
-	product.DELETE("/id/:productId", r.product.DeleteProduct)
-
 	users.POST("/admin", r.middleware.Auth, r.middleware.CheckRole(r.user.AdminCreateEmployee, []string{"admin", "owner"}))
 	users.GET("/admin", r.middleware.Auth, r.middleware.CheckRole(r.user.AdminGetAllEmployee, []string{"admin", "owner"}))
 	users.GET("/admin/:id", r.middleware.Auth, r.middleware.CheckRole(r.user.AdminGetEmployeeById, []string{"admin", "owner"}))

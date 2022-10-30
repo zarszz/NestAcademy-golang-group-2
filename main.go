@@ -34,15 +34,12 @@ func main() {
 	userSvc := service.NewServices(userRepo)
 	userHandler := controller.NewUserController(userSvc, userDetailSvc)
 
-	transactionSvc := service.TransactionServicesNew(config)
-	transactionHandler := controller.NewTransactionController(transactionSvc)
-
 	productRepo := gorm_postgres.NewProductRepoGormPostgres(db)
 	productSvc := service.NewProductServices(productRepo)
 	productHandler := controller.NewProductHandler(productSvc)
 
 	transactionRepo := gorm_postgres.NewTransactionGormRepository(db)
-	transactionSvc := service.NewTransactionService(*rajaOngkirAdaptor, userRepo, productRepo, transactionRepo)
+	transactionSvc := service.TransactionServicesNew(config, *rajaOngkirAdaptor, userRepo, productRepo, transactionRepo)
 	transactionHandler := controller.NewTransactionController(transactionSvc)
 
 	router := gin.Default()

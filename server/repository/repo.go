@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/zarszz/NestAcademy-golang-group-2/server/model"
-	"github.com/zarszz/NestAcademy-golang-group-2/server/params"
 )
 
 type UserRepo interface {
@@ -23,9 +22,13 @@ type UserDetailRepo interface {
 }
 
 type TransactionRepo interface {
-	Inquire(inquireTransaction *model.InquireTransaction) error
-	CekStockProduct(waybill string) ([]model.InquireTransaction, error)
-	CekRajaOngkir(inquire params.Inquire) ([]model.InquireTransaction, error)
+	// Inquire(inquireTransaction *model.InquireTransaction) error
+	// CekStockProduct(waybill string) ([]model.InquireTransaction, error)
+	// CekRajaOngkir(inquire params.Inquire) ([]model.InquireTransaction, error)
+	Create(transaction *model.Transaction) error
+	FindAllByUserID(limit int, page int, userID string) (*[]model.Transaction, *int, error)
+	FindAll(limit int, page int) (*[]model.Transaction, *int, error)
+	UpdateStatus(newStatus string, trxID string) error
 }
 
 type ProductRepo interface {
@@ -34,11 +37,4 @@ type ProductRepo interface {
 	FindProductByID(id string) (*model.Product, error)
 	UpdateProduct(product *model.Product) error
 	DeleteProduct(id string) error
-}
-
-type TransactionRepo interface {
-	Create(transaction *model.Transaction) error
-	FindAllByUserID(limit int, page int, userID string) (*[]model.Transaction, *int, error)
-	FindAll(limit int, page int) (*[]model.Transaction, *int, error)
-	UpdateStatus(newStatus string, trxID string) error
 }

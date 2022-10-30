@@ -117,7 +117,7 @@ func (r *RajaOngkirAdaptor) CalculateCost(origin string, destination string, wei
 	body.Add("weight", weight)
 	body.Add("courier", courier)
 	encodedData := body.Encode()
-	resp, err := r.httpClient.PostWithHeader("/starter/cost", &headers, &encodedData)
+	resp, err := r.httpClient.PostWithHeader("cost", &headers, &encodedData)
 	if err != nil {
 		return nil, err
 	}

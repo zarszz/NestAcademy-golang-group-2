@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/zarszz/NestAcademy-golang-group-2/adaptor"
 	"github.com/zarszz/NestAcademy-golang-group-2/config"
+	"github.com/zarszz/NestAcademy-golang-group-2/server/custom_error"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/model"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/params"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/repository"
@@ -140,7 +141,7 @@ func (t *TransactionServices) generateHeaderRequest(request *http.Request, apiKe
 	return request
 }
 
-func (t *TransactionService) ConfirmTransaction(confirmTransaction *params.ConfirmTransaction, userID string) error {
+func (t *TransactionServices) ConfirmTransaction(confirmTransaction *params.ConfirmTransaction, userID string) error {
 	product, err := t.productRepo.FindProductByID(confirmTransaction.ProductID)
 	if err != nil {
 		return err
@@ -229,7 +230,7 @@ func (t *TransactionService) ConfirmTransaction(confirmTransaction *params.Confi
 	return nil
 }
 
-func (t *TransactionService) GetTransactionsByUserID(limit int, page int, userID string) (*[]params.Transaction, *int, error) {
+func (t *TransactionServices) GetTransactionsByUserID(limit int, page int, userID string) (*[]params.Transaction, *int, error) {
 	trx, count, err := t.transactionRepo.FindAllByUserID(limit, page, userID)
 	if err != nil {
 		fmt.Printf("[GetTransactionsByUserID] error : %v", err)
@@ -238,7 +239,7 @@ func (t *TransactionService) GetTransactionsByUserID(limit int, page int, userID
 	return makeListTransactionView(trx), count, nil
 }
 
-func (t *TransactionService) GetTransactions(limit int, page int) (*[]params.Transaction, *int, error) {
+func (t *TransactionServices) GetTransactions(limit int, page int) (*[]params.Transaction, *int, error) {
 	trx, count, err := t.transactionRepo.FindAll(limit, page)
 	if err != nil {
 		fmt.Printf("[GetTransactions] error : %v", err)
@@ -247,7 +248,7 @@ func (t *TransactionService) GetTransactions(limit int, page int) (*[]params.Tra
 	return makeListTransactionView(trx), count, nil
 }
 
-func (t *TransactionService) UpdateStatus(newStatus string, trxID string) error {
+func (t *TransactionServices) UpdateStatus(newStatus string, trxID string) error {
 	err := t.transactionRepo.UpdateStatus(newStatus, trxID)
 	if err != nil {
 		fmt.Printf("[UpdateStatus] error : %v", err)
