@@ -29,7 +29,11 @@ type TransactionServices struct {
 func TransactionServicesNew(config config.Config, rajaongkirAdaptor adaptor.RajaOngkirAdaptor,
 	userRepo repository.UserRepo, productRepo repository.ProductRepo, transactionRepo repository.TransactionRepo) *TransactionServices {
 	return &TransactionServices{
-		config: config,
+		config:            config,
+		userRepo:          userRepo,
+		productRepo:       productRepo,
+		transactionRepo:   transactionRepo,
+		RajaongkirAdaptor: rajaongkirAdaptor,
 	}
 }
 
@@ -194,7 +198,7 @@ func (t *TransactionServices) ConfirmTransaction(confirmTransaction *params.Conf
 		worstInt, _ := strconv.Atoi(splitted[1])
 		worst := time.Now().AddDate(0, 0, worstInt)
 		estimationArrived = fmt.Sprintf("%s - %s", best.Format(time.RFC3339), worst.Format(time.RFC3339))
-		estimationDay = fmt.Sprintf("%s days", estimationDay)
+		estimationDay = fmt.Sprintf("%s days", estimation)
 	} else {
 		estimationArrived = time.Now().Format(time.RFC3339)
 		estimationDay = "1 day"
