@@ -3,17 +3,30 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/zarszz/NestAcademy-golang-group-2/adaptor"
 	"github.com/zarszz/NestAcademy-golang-group-2/config"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/model"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/params"
-	"net/http"
+	"github.com/zarszz/NestAcademy-golang-group-2/server/repository"
 )
 
 type TransactionServices struct {
-	config config.Config
+	config            config.Config
+	userRepo          repository.UserRepo
+	productRepo       repository.ProductRepo
+	transactionRepo   repository.TransactionRepo
+	RajaongkirAdaptor adaptor.RajaOngkirAdaptor
 }
 
-func TransactionServicesNew(config config.Config) *TransactionServices {
+func TransactionServicesNew(config config.Config, rajaongkirAdaptor adaptor.RajaOngkirAdaptor,
+	userRepo repository.UserRepo, productRepo repository.ProductRepo, transactionRepo repository.TransactionRepo) *TransactionServices {
 	return &TransactionServices{
 		config: config,
 	}
@@ -125,4 +138,181 @@ func (t *TransactionServices) generateHeaderRequest(request *http.Request, apiKe
 	request.Header.Set("key", apiKey)
 
 	return request
+}
+
+func (t *TransactionService) ConfirmTransaction(confirmTransaction *params.ConfirmTransaction, userID string) error {
+	product, err := t.productRepo.FindProductByID(confirmTransaction.ProductID)
+	if err != nil {
+		return err
+	}
+
+	user, err := t.userRepo.FindUserByID(userID)
+	if err != nil {
+		return err
+	}
+
+	if product.Stock == 0 {
+		return custom_error.ErrOutOfStock
+	}
+
+	conf, _ := config.LoadConfig(".")
+
+	totalWeight := confirmTransaction.Quantity * product.Weight
+
+	resp, err := t.RajaongkirAdaptor.CalculateCost(conf.ShopeOriginID, strconv.Itoa(confirmTransaction.Destination), strconv.Itoa(totalWeight), confirmTransaction.Courier.Code)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	courierServices := *parseToStruct(resp)
+
+	var selectedService params.InquiryServiceCosts
+	for _, courier := range courierServices {
+
+		// select specific courier (such as jne, jnt, etc)
+		if courier.Code == confirmTransaction.Courier.Code {
+			for _, service := range courier.Costs {
+
+				// select specific service in courier (such as REG, YES, etc)
+				if service.Services == confirmTransaction.Courier.Service {
+					selectedService = service
+				}
+			}
+		}
+	}
+
+	totalPrice := (confirmTransaction.Quantity * product.Price) + selectedService.Cost[0].Value
+
+	var estimationArrived string
+	var estimationDay string
+	estimation := selectedService.Cost[0].Estimation
+	if strings.Contains(estimation, "-") {
+		splitted := strings.Split(estimation, "-")
+		bestInt, _ := strconv.Atoi(splitted[0])
+		best := time.Now().AddDate(0, 0, bestInt)
+		worstInt, _ := strconv.Atoi(splitted[1])
+		worst := time.Now().AddDate(0, 0, worstInt)
+		estimationArrived = fmt.Sprintf("%s - %s", best.Format(time.RFC3339), worst.Format(time.RFC3339))
+		estimationDay = fmt.Sprintf("%s days", estimationDay)
+	} else {
+		estimationArrived = time.Now().Format(time.RFC3339)
+		estimationDay = "1 day"
+	}
+
+	transaction := model.Transaction{
+		Id:                    uuid.NewString(),
+		CreatedAt:             time.Now(),
+		Quantity:              confirmTransaction.Quantity,
+		Weight:                totalWeight,
+		TotalPrice:            totalPrice,
+		DestinationCity:       resp.Rajaongkir.DestinationDetails.CityName,
+		DestinationCityID:     resp.Rajaongkir.DestinationDetails.CityID,
+		DestinationProvince:   resp.Rajaongkir.DestinationDetails.Province,
+		DestinationProvinceID: resp.Rajaongkir.DestinationDetails.ProvinceID,
+		CourierCode:           confirmTransaction.Courier.Code,
+		CourierService:        selectedService.Services,
+		CourierCost:           selectedService.Cost[0].Value,
+		CourierEstimation:     estimationDay,
+		Status:                "WAITING",
+		EstimationArrived:     estimationArrived,
+		ProductID:             product.Id,
+		Product:               *product,
+		UserID:                user.BaseModel.Id,
+		User:                  *user,
+	}
+
+	err = t.transactionRepo.Create(&transaction)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TransactionService) GetTransactionsByUserID(limit int, page int, userID string) (*[]params.Transaction, *int, error) {
+	trx, count, err := t.transactionRepo.FindAllByUserID(limit, page, userID)
+	if err != nil {
+		fmt.Printf("[GetTransactionsByUserID] error : %v", err)
+		return nil, nil, err
+	}
+	return makeListTransactionView(trx), count, nil
+}
+
+func (t *TransactionService) GetTransactions(limit int, page int) (*[]params.Transaction, *int, error) {
+	trx, count, err := t.transactionRepo.FindAll(limit, page)
+	if err != nil {
+		fmt.Printf("[GetTransactions] error : %v", err)
+		return nil, nil, err
+	}
+	return makeListTransactionView(trx), count, nil
+}
+
+func (t *TransactionService) UpdateStatus(newStatus string, trxID string) error {
+	err := t.transactionRepo.UpdateStatus(newStatus, trxID)
+	if err != nil {
+		fmt.Printf("[UpdateStatus] error : %v", err)
+		return err
+	}
+	return nil
+}
+
+func parseToStruct(rajaongkirResp *adaptor.RajaongkirCost) *[]params.InquiryServicesCourier {
+	var servicesCourier []params.InquiryServicesCourier
+
+	for _, result := range rajaongkirResp.Rajaongkir.Results {
+		var service params.InquiryServicesCourier
+
+		service.Name = result.Name
+		service.Code = result.Code
+
+		for _, cost := range result.Costs {
+			var serviceCosts params.InquiryServiceCosts
+			serviceCosts.Description = cost.Description
+			serviceCosts.Services = cost.Service
+
+			for _, detailServiceCost := range cost.Cost {
+				var serviceDetailCost params.InquiryServiceCost
+				serviceDetailCost.Estimation = detailServiceCost.Etd
+				serviceDetailCost.Note = detailServiceCost.Note
+				serviceDetailCost.Value = detailServiceCost.Value
+				serviceCosts.Cost = append(serviceCosts.Cost, serviceDetailCost)
+			}
+			service.Costs = append(service.Costs, serviceCosts)
+		}
+		servicesCourier = append(servicesCourier, service)
+	}
+	return &servicesCourier
+}
+
+func makeListTransactionView(trxs *[]model.Transaction) *[]params.Transaction {
+	var res []params.Transaction
+	for _, trx := range *trxs {
+		res = append(res, *makeSingleTransactionView(&trx))
+	}
+	return &res
+}
+
+func makeSingleTransactionView(trx *model.Transaction) *params.Transaction {
+	return &params.Transaction{
+		ID:          trx.Id,
+		ProductID:   trx.ProductID,
+		ProductName: trx.Product.Name,
+		Quantity:    strconv.Itoa(trx.Quantity),
+		Destination: params.Destination{
+			City:     trx.DestinationCity,
+			Province: trx.DestinationProvince,
+		},
+		Weight:     strconv.Itoa(trx.Weight),
+		TotalPrice: strconv.Itoa(trx.TotalPrice),
+		Courier: params.Courier{
+			Code:       trx.CourierCode,
+			Service:    trx.CourierService,
+			Cost:       strconv.Itoa(trx.CourierCost),
+			Estimation: trx.CourierEstimation,
+		},
+		Status:            trx.Status,
+		EstimationArrived: trx.EstimationArrived,
+		CreatedAt:         trx.CreatedAt,
+		UpdatedAt:         trx.UpdatedAt,
+	}
 }

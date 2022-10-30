@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/params"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/service"
@@ -55,13 +53,13 @@ func (h *ProductHandler) FindProductByID(c *gin.Context) {
 		return
 	}
 
-	productIdNumber, errConv := strconv.Atoi(productId)
-	if errConv != nil {
-		WriteInvalidRequestPayloadResponse(c, "productId must be a number")
-		return
-	}
+	// productIdNumber, errConv := strconv.Atoi(productId)
+	// if errConv != nil {
+	// 	WriteInvalidRequestPayloadResponse(c, "productId must be a number")
+	// 	return
+	// }
 
-	resp, err := h.svc.FindProductByID(productIdNumber)
+	resp, err := h.svc.FindProductByID(productId)
 	if err != nil {
 		WriteErrorJsonResponse(c, err)
 	}
@@ -91,13 +89,13 @@ func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 		return
 	}
 
-	productIdNumber, errConv := strconv.Atoi(productId)
-	if errConv != nil {
-		WriteInvalidRequestPayloadResponse(c, "productId must be a number")
-		return
-	}
+	// productIdNumber, errConv := strconv.Atoi(productId)
+	// if errConv != nil {
+	// 	WriteInvalidRequestPayloadResponse(c, "productId must be a number")
+	// 	return
+	// }
 
-	resp, err := h.svc.DeleteProduct(productIdNumber)
+	resp, err := h.svc.DeleteProduct(productId)
 	if err != nil {
 		WriteErrorJsonResponse(c, err)
 	}
