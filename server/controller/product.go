@@ -68,13 +68,14 @@ func (h *ProductHandler) FindProductByID(c *gin.Context) {
 }
 
 func (h *ProductHandler) UpdateProduct(c *gin.Context) {
+	productId := c.Param("productId")
 	var req params.StoreProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		WriteInvalidRequestPayloadResponse(c, err.Error())
 		return
 	}
 
-	resp, err := h.svc.UpdateProduct(&req)
+	resp, err := h.svc.UpdateProduct(&req, productId)
 	if err != nil {
 		WriteErrorJsonResponse(c, err)
 	}

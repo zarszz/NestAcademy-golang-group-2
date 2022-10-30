@@ -57,8 +57,23 @@ func (s *ProductService) FindProductByID(id string) (*view.ResponseWithDataSucce
 	return view.SuccessWithData(view.NewGetProductDetailResponse(product), "Success get product by id"), nil
 }
 
-func (s *ProductService) UpdateProduct(req *params.StoreProductRequest) (*view.ResponseSuccess, *view.ResponseFailed) {
-	err := s.repo.UpdateProduct(req.ParseToModel())
+func (s *ProductService) UpdateProduct(req *params.StoreProductRequest, id string) (*view.ResponseSuccess, *view.ResponseFailed) {
+	product, err := s.repo.FindProductByID(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, view.ErrNotFound("Product not found", err.Error())
+		}
+		return nil, view.ErrInternalServer("Internal server error", err.Error())
+	}
+	newProduct := req.ParseToModel()
+	product.Category = newProduct.Category
+	product.Description = newProduct.Description
+	product.ImageUrl = newProduct.ImageUrl
+	product.Name = newProduct.Name
+	product.Price = newProduct.Price
+	product.Stock = newProduct.Price
+	product.Weight = newProduct.Weight
+	err = s.repo.UpdateProduct(product)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, view.ErrNotFound("Product not found", err.Error())

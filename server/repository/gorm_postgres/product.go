@@ -42,7 +42,7 @@ func (p *productRepo) FindProductByID(id string) (*model.Product, error) {
 }
 
 func (p *productRepo) UpdateProduct(product *model.Product) error {
-	return p.db.Save(product).Error
+	return p.db.Save(&product).Error
 }
 
 func (p *productRepo) DeleteProduct(id string) error {
