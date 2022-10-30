@@ -32,16 +32,15 @@ func (r *Router) Start(port string) {
 	auth.POST("/register", r.user.Register)
 	auth.POST("/login", r.user.Login)
 
+	// product controller
 	product := r.router.Group("/product")
 	product.GET("", r.product.GetProducts)
-	// product.POST("", r.product.CreateProduct)
 	product.POST("", r.middleware.Auth, r.middleware.CheckRole(r.product.CreateProduct, []string{"admin", "owner"}))
 	product.GET("/id/:productId", r.product.FindProductByID)
-	// product.PUT("/id/:productId", r.product.UpdateProduct)
 	product.PUT("/id/:productId", r.middleware.Auth, r.middleware.CheckRole(r.product.UpdateProduct, []string{"admin", "owner"}))
-	// product.DELETE("/id/:productId", r.product.DeleteProduct)
 	product.DELETE("", r.middleware.Auth, r.middleware.CheckRole(r.product.DeleteProduct, []string{"admin", "owner"}))
 
+	// user controller
 	users := r.router.Group("/users")
 	users.POST("", r.middleware.Auth, r.user.CreateUser)
 	users.GET("", r.middleware.Auth, r.middleware.CheckRole(r.user.GetUsers, []string{"admin", "owner"}))

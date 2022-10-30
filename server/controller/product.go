@@ -52,13 +52,6 @@ func (h *ProductHandler) FindProductByID(c *gin.Context) {
 		WriteInvalidRequestPayloadResponse(c, "productId is required")
 		return
 	}
-
-	// productIdNumber, errConv := strconv.Atoi(productId)
-	// if errConv != nil {
-	// 	WriteInvalidRequestPayloadResponse(c, "productId must be a number")
-	// 	return
-	// }
-
 	resp, err := h.svc.FindProductByID(productId)
 	if err != nil {
 		WriteErrorJsonResponse(c, err)
@@ -89,13 +82,6 @@ func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 		WriteInvalidRequestPayloadResponse(c, "productId is required")
 		return
 	}
-
-	// productIdNumber, errConv := strconv.Atoi(productId)
-	// if errConv != nil {
-	// 	WriteInvalidRequestPayloadResponse(c, "productId must be a number")
-	// 	return
-	// }
-
 	resp, err := h.svc.DeleteProduct(productId)
 	if err != nil {
 		WriteErrorJsonResponse(c, err)

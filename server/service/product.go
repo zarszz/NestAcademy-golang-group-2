@@ -1,11 +1,8 @@
 package service
 
 import (
-	// "fmt"
-
 	"gorm.io/gorm"
 
-	// "github.com/zarszz/NestAcademy-golang-group-2/server/params"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/params"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/repository"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/view"

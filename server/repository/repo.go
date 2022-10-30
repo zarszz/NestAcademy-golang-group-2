@@ -22,9 +22,6 @@ type UserDetailRepo interface {
 }
 
 type TransactionRepo interface {
-	// Inquire(inquireTransaction *model.InquireTransaction) error
-	// CekStockProduct(waybill string) ([]model.InquireTransaction, error)
-	// CekRajaOngkir(inquire params.Inquire) ([]model.InquireTransaction, error)
 	Create(transaction *model.Transaction) error
 	FindAllByUserID(limit int, page int, userID string) (*[]model.Transaction, *int, error)
 	FindAll(limit int, page int) (*[]model.Transaction, *int, error)

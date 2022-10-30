@@ -40,8 +40,6 @@ func (t *TransactionController) Inquire(c *gin.Context) {
 		WriteErrorJsonResponse(c, views)
 	} else {
 		c.JSON(inquire.Status, inquire)
-		//views := view.SuccessWithData(inquire, "INQUIRY_TRANSACTION_SUCCESS")
-		//WriteJsonResponseGetSuccess(c, views)
 	}
 }
 
