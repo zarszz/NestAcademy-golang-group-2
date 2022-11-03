@@ -55,6 +55,14 @@ func OperationSuccess(message string) *ResponseSuccess {
 	}
 }
 
+func DeletedSuccess(message string) *ResponseSuccess {
+	return &ResponseSuccess{
+		Status:      http.StatusNoContent,
+		Message:     message,
+		GeneralInfo: "Group-2",
+	}
+}
+
 func SuccessWithData(payload interface{}, message string) *ResponseWithDataSuccess {
 	return &ResponseWithDataSuccess{
 		Status:  http.StatusOK,

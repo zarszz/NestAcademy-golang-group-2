@@ -38,7 +38,7 @@ func (r *Router) Start(port string) {
 	product.POST("", r.middleware.Auth, r.middleware.CheckRole(r.product.CreateProduct, []string{"admin", "owner"}))
 	product.GET("/id/:productId", r.product.FindProductByID)
 	product.PUT("/id/:productId", r.middleware.Auth, r.middleware.CheckRole(r.product.UpdateProduct, []string{"admin", "owner"}))
-	product.DELETE("", r.middleware.Auth, r.middleware.CheckRole(r.product.DeleteProduct, []string{"admin", "owner"}))
+	product.DELETE("/:productId", r.middleware.Auth, r.middleware.CheckRole(r.product.DeleteProduct, []string{"admin", "owner"}))
 
 	// user controller
 	users := r.router.Group("/users")
