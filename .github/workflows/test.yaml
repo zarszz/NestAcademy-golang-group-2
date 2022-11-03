@@ -19,21 +19,20 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v1
-      - uses: actions/setup-node@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: '1.18.1'
-      
-      - run: cp app.env.example app.env
 
       - run: |
+          cp app.env.example app.env
           apt-get update
           apt-get install --yes --no-install-recommends postgresql-client
 
+      - uses: actions/setup-node@v3
       - name: install newman
         with:
           node-version: 16
         run: npm install -g newman
 
+      - uses: actions/setup-go@v3
       - name: running e2e test script
+        with:
+          go-version: '1.18.1'
         run: chmod +x ./e2e_test.sh && ./e2e_test.sh
