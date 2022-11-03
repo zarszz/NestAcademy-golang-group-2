@@ -26,13 +26,13 @@ jobs:
           apt-get install --yes --no-install-recommends postgresql-client
 
       - uses: actions/setup-node@v3
-      - name: install newman
+        name: install newman
         with:
           node-version: 16
         run: npm install -g newman
 
       - uses: actions/setup-go@v3
-      - name: running e2e test script
+        name: running e2e test script
         with:
           go-version: '1.18.1'
         run: chmod +x ./e2e_test.sh && ./e2e_test.sh
