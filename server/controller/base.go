@@ -26,3 +26,11 @@ func WriteInvalidRequestPayloadResponse(c *gin.Context, message string) {
 	resp := view.ErrBadRequest(info, message)
 	WriteErrorJsonResponse(c, resp)
 }
+
+func WriteUnprocessableEntityError(c *gin.Context, additionalMessage string, message string) {
+	info := view.AdditionalInfoError{
+		Message: additionalMessage,
+	}
+	resp := view.ErrUnprocessableEntity(info, message)
+	WriteErrorJsonResponse(c, resp)
+}

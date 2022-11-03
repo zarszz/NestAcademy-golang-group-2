@@ -1,13 +1,14 @@
 package server
 
 import (
+	"log"
+	"strings"
+	"time"
+
 	"github.com/zarszz/NestAcademy-golang-group-2/helper"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/controller"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/service"
 	"github.com/zarszz/NestAcademy-golang-group-2/server/view"
-	"log"
-	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -57,23 +58,26 @@ func (m *Middleware) Auth(c *gin.Context) {
 
 func (m *Middleware) CheckRole(next gin.HandlerFunc, roles []string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		// email := ctx.GetString("USER_EMAIL")
-		// user := m.userSvc.FindUserByEmail(email)
-		// userDetail := user.Payload.(*model.User)
+		id := ctx.GetString("USER_ID")
+		user, _ := m.userSvc.FindByID(id)
 
-		// isExist := false
+		isExist := false
 
-		// for _, role := range roles {
-		// 	if role == userDetail.Role {
-		// 		isExist = true
-		// 		break
-		// 	}
-		// }
+		for _, role := range roles {
+			if role == user.Role {
+				isExist = true
+				break
+			}
+		}
 
-		// if !isExist {
-		// 	controller.WriteErrorJsonResponseGin(ctx, view.ErrUnauthorized())
-		// 	return
-		// }
+		if !isExist {
+			info := view.AdditionalInfoError{
+				Message: "you dont have access for this resources",
+			}
+			payload := view.ErrUnauthorized(info, "GET_ALL_USERS_FAIL")
+			controller.WriteErrorJsonResponse(ctx, payload)
+			return
+		}
 
 		next(ctx)
 	}

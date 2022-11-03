@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/zarszz/NestAcademy-golang-group-2/adaptor"
 	"github.com/zarszz/NestAcademy-golang-group-2/config"
 	"github.com/zarszz/NestAcademy-golang-group-2/db"
 	"github.com/zarszz/NestAcademy-golang-group-2/server"
@@ -24,16 +25,29 @@ func main() {
 		panic(err)
 	}
 
+	rajaOngkirAdaptor := adaptor.NewRajaOngkirAdapter(config.RajaongkirBaseUrl)
+
+	userDetailRepo := gorm_postgres.NewUserDetailGormRepository(db)
+	userDetailSvc := service.NewUserDetailService(userDetailRepo, rajaOngkirAdaptor)
+
 	userRepo := gorm_postgres.NewUserRepoGormPostgres(db)
 	userSvc := service.NewServices(userRepo)
-	userHandler := controller.NewUserController(userSvc)
+	userHandler := controller.NewUserController(userSvc, userDetailSvc)
+
+	productRepo := gorm_postgres.NewProductRepoGormPostgres(db)
+	productSvc := service.NewProductServices(productRepo)
+	productHandler := controller.NewProductHandler(productSvc)
+
+	transactionRepo := gorm_postgres.NewTransactionGormRepository(db)
+	transactionSvc := service.TransactionServicesNew(config, *rajaOngkirAdaptor, userRepo, productRepo, transactionRepo)
+	transactionHandler := controller.NewTransactionController(transactionSvc)
 
 	router := gin.Default()
 	router.Use(gin.Logger())
 
 	middleware := server.NewMiddleware(userSvc)
 
-	app := server.NewRouter(router, userHandler, middleware)
+	app := server.NewRouter(router, userHandler, transactionHandler, productHandler, middleware)
 
-	app.Start(":4444")
+	app.Start(":" + config.Port)
 }

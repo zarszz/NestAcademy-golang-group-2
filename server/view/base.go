@@ -47,11 +47,49 @@ func SuccessCreated(message string) *ResponseSuccess {
 	}
 }
 
+func OperationSuccess(message string) *ResponseSuccess {
+	return &ResponseSuccess{
+		Status:      http.StatusOK,
+		Message:     message,
+		GeneralInfo: "Group-2",
+	}
+}
+
+func DeletedSuccess(message string) *ResponseSuccess {
+	return &ResponseSuccess{
+		Status:      http.StatusNoContent,
+		Message:     message,
+		GeneralInfo: "Group-2",
+	}
+}
+
 func SuccessWithData(payload interface{}, message string) *ResponseWithDataSuccess {
 	return &ResponseWithDataSuccess{
 		Status:  http.StatusOK,
 		Message: message,
 		Payload: payload,
+	}
+}
+
+func SuccessGetPagination(payload interface{}, message string, query Query) *ResponseGetPaginationSuccess {
+	return &ResponseGetPaginationSuccess{
+		Status:  http.StatusOK,
+		Payload: payload,
+		Message: message,
+		Query:   query,
+	}
+}
+
+func SuccessWithPaginationData(payload interface{}, message string, limit int, page int, total int) *ResponseGetPaginationSuccess {
+	return &ResponseGetPaginationSuccess{
+		Status:  http.StatusOK,
+		Message: message,
+		Payload: payload,
+		Query: Query{
+			Limit: limit,
+			Page:  page,
+			Total: total,
+		},
 	}
 }
 
@@ -65,6 +103,16 @@ func ErrBadRequest(additionalInfo interface{}, message string) *ResponseFailed {
 	}
 }
 
+func ErrServer(statusCode int, additionalInfo interface{}) *ResponseFailed {
+	return &ResponseFailed{
+		Status:         statusCode,
+		AdditionalInfo: additionalInfo,
+		Message:        "UNPROCESSABLE_ENTITY",
+		Error:          "UNPROCESSABLE_ENTITY",
+		GeneralInfo:    "Kelompok-2",
+	}
+}
+
 func ErrInternalServer(additionalInfo interface{}, message string) *ResponseFailed {
 	return &ResponseFailed{
 		Status:         http.StatusInternalServerError,
@@ -74,6 +122,7 @@ func ErrInternalServer(additionalInfo interface{}, message string) *ResponseFail
 		GeneralInfo:    "Kelompok-2",
 	}
 }
+
 func ErrNotFound(additionalInfo interface{}, message string) *ResponseFailed {
 	return &ResponseFailed{
 		Status:         http.StatusNotFound,
@@ -90,6 +139,26 @@ func ErrUnauthorized(additionalInfo interface{}, message string) *ResponseFailed
 		AdditionalInfo: additionalInfo,
 		Message:        message,
 		Error:          "UNAUTHORIZED",
+		GeneralInfo:    "Kelompok-2",
+	}
+}
+
+func ErrForbidden(additionalInfo interface{}, message string) *ResponseFailed {
+	return &ResponseFailed{
+		Status:         http.StatusForbidden,
+		AdditionalInfo: additionalInfo,
+		Message:        message,
+		Error:          "FORBIDDEN_ACCESS",
+		GeneralInfo:    "Kelompok-2",
+	}
+}
+
+func ErrUnprocessableEntity(additionalInfo interface{}, message string) *ResponseFailed {
+	return &ResponseFailed{
+		Status:         http.StatusUnprocessableEntity,
+		AdditionalInfo: additionalInfo,
+		Message:        message,
+		Error:          "UNPROCESSABLE_ENTITY",
 		GeneralInfo:    "Kelompok-2",
 	}
 }
