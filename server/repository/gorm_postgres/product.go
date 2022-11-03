@@ -46,5 +46,5 @@ func (p *productRepo) UpdateProduct(product *model.Product) error {
 }
 
 func (p *productRepo) DeleteProduct(id string) error {
-	return p.db.Delete(&model.Product{}, id).Error
+	return p.db.Where("id=?", id).Delete(&model.Product{}).Error
 }

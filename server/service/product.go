@@ -90,5 +90,5 @@ func (s *ProductService) DeleteProduct(id string) (*view.ResponseSuccess, *view.
 		return nil, view.ErrInternalServer("Internal server error", err.Error())
 	}
 
-	return view.SuccessCreated("Success delete product"), nil
+	return view.DeletedSuccess("Success delete product"), nil
 }
