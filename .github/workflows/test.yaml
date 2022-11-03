@@ -28,6 +28,6 @@ jobs:
 
       - run: |
           cp app.env.example app.env
-          apt-get install --yes --no-install-recommends postgresql-client
+          sudo apt-get install --yes --no-install-recommends postgresql-client
           npm install -g newman
           chmod +x ./e2e_test.sh && ./e2e_test.sh
